@@ -109,10 +109,10 @@ export default {
       if (obj[i].getAttribute("id") == "CamSDKOCX") return (flag = true);
     }
     if (!flag) {
-      let body = document.getElementsByTagName("body")[0];
+      let body = document.getElementsByTagName("body")[0];o0
       domAppend(body, "CamSDKOCX");
     }
-    
+
     InitCamOCX();
   },
   destroyed() {
