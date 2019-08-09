@@ -1,4 +1,4 @@
-const InitCamOCX = function InitCamOCX() {
+const InitCamOCX = function() {
 
     var ret = CamSDKOCX.InitCameraLib();
     if (ret) {
@@ -13,8 +13,8 @@ const InitCamOCX = function InitCamOCX() {
         console.log('初始化没有任何返回');
     }
     //开启0号摄像头
-    //StartVideo();
-    // setTimeout("StartVideo()",200);
+    StartVideo();
+    setTimeout("StartVideo()", 200);
 }
 
 function StartVideo() {
@@ -22,6 +22,57 @@ function StartVideo() {
     //打开列表所选摄像头
     ChangeDevice();
     AddAudioDev(AudioList);
+}
+
+// <!--清空列表-->
+function clean(list)
+{
+　　while (list.options.length>0)
+　　{
+　　 list.options.remove(0);
+　　}
+}
+
+function AddDevice() {
+    clean(DeviceList);
+    var mainDevCount = 0;
+    var total = CamSDKOCX.GetDevCount();
+    for (var i = 0; i < total; i++) {
+        var devtype = CamSDKOCX.GetDevType(i);
+        //if (devtype == 0) {//0 主头
+        var DevEle = CamSDKOCX.GetDevName(i);
+        DeviceList.options.add(new Option(DevEle, i));
+        //DeviceList.options[mainDevCount].text = DevEle;
+        mainDevCount++;
+        //}	
+    }
+    if (mainDevCount > 0) {
+        mainIndex = 0;
+        DeviceList.options[0].selected = true;
+    }
+}
+
+// <!--麦克风-->
+function AddAudioDev(obj) {
+    var nCount = CamSDKOCX.GetAudioDevCount();
+    for (var i = 0; i < nCount; i++) {
+        var DevEle = CamSDKOCX.GetAudioDevName(i);
+        obj.options.add(new Option(DevEle));
+    }
+    if (nCount > 0) {
+        obj.options[0].selected = true;
+    }
+}
+
+const ChangeDevice= function() {
+    CamSDKOCX.CloseDev();
+    var obj = document.getElementById("DeviceList");
+    var index = obj.selectedIndex;
+    if (index >= 0) {
+        CamSDKOCX.openDev(index, 0, 0, 0);
+        AddMediaType(MediaType);
+        AddResolution2Comb(Resolution);
+    }
 }
 
 
@@ -36,7 +87,6 @@ const Capture = function () {
 }
 
 const CaptureShow = function () {
-    console.log('aaaaaaaaa');
     var files = Capture();
 
     var strs = new Array(); //定义一数组
@@ -87,4 +137,5 @@ export {
     Capture,
     CaptureShow,
     UnInitCamOCX,
+    ChangeDevice
 }

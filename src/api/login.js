@@ -4,7 +4,6 @@ import Base from './base';
 const Login = {
     //  登录接口
     login(params) {
-        console.log('aaaaaaaaaaaaaa');
         return commonAxios("post",`${Base.oldUrl}account/loginCheck`, params);
     },
     //  获取字典信息

@@ -7,8 +7,6 @@ import "babel-polyfill";
 import store from './store'
 import './plugins/element'
 import 'swiper/dist/css/swiper.min.css';
-import API from './api'
-import utils from './utils';
 import './assets/css/theme.scss';
 console.log('111111111111XXXXXXXXXX',process.env.NODE_ENV)
 
