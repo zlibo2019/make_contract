@@ -43,7 +43,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     // prevent webpack from injecting mocks to Node native modules
     // that does not make sense for the client
     dgram: 'empty',
-    fs: true,
+    fs: false,
     process: 'mock',
     net: 'empty',
     tls: 'empty',

@@ -30,8 +30,11 @@
     </div>
 
     <div class="all-page-middle">
-      <div class="rz-picter1">
+      <div class="rz-picter">
         <img :src="avatar1" class="img-avatar" />
+      </div>
+
+      <div>
         <input
           type="file"
           name="avatar"
@@ -39,21 +42,27 @@
           accept="image/gif, image/jpeg, image/jpg, image/png"
           @change="changeImage1($event)"
           ref="avatarInput"
+          class="uppic"
+
         />
       </div>
 
-      <!-- <div class="rz-picter2">
-      <img :src="avatar2" class="img-avatar" />
-      <input
-        type="file"
-        name="avatar"
-        id="uppic"
-        accept="image/gif, image/jpeg, image/jpg, image/png"
-        @change="changeImage2($event)"
-        ref="avatarInput"
-        class="uppic"
-      />
-      </div>-->
+      <div class="rz-picter">
+        <img :src="avatar2" class="img-avatar" />
+      </div>
+
+      <div>
+        <input
+          type="file"
+          name="avatar"
+          id="uppic"
+          accept="image/gif, image/jpeg, image/jpg, image/png"
+          @change="changeImage2($event)"
+          ref="avatarInput"
+          class="uppic"
+
+        />
+      </div>
     </div>
 
     <div class="all-page-right">
@@ -66,12 +75,11 @@
 <script>
 import { domAppend } from "@/utils/load_ocx.js"; //我的动态创建元素的方法放于的文件夹
 import { commonAxios, deleteAxios, putAxios } from "../../utils/axios.js";
-const fs = require("fs");
 export default {
   name: "login",
   data() {
     return {
-      avatar1: require("../../assets/images/default.png"),
+      avatar1: require("../../assets/images/1.jpg"),
       avatar2: require("../../assets/images/2.jpg"),
       device: "",
       arrDevice: [],
@@ -132,9 +140,12 @@ export default {
 
     changeImage2(e) {
       var file = e.target.files[0];
+
+      console.log('file'+file);
       var reader = new FileReader();
       var that = this;
       reader.readAsDataURL(file);
+      console.log(JSON.stringify(reader));
       reader.onload = function(e) {
         that.avatar2 = this.result;
       };
@@ -256,30 +267,7 @@ export default {
       CamSDKOCX.SetMediaType(index);
     },
 
-    readPhotofile(photoPath) {
-      let base64 = "";
-      // 保存照片
-      return new Promise((resolve, reject) => {
-        // @ts-check
-        fs.readFileSync(photoPath, function(err, data) {
-          if (err) {
-            reject(err);
-            ctx.logger.error(err);
-          } else {
-            base64 = data.toString("base64");
-            // console.log('success:' + base64);
-            resolve();
-          }
-          return base64;
-        });
-      });
-    },
-
     makeContract(photo) {
-      console.log("xxxxxxxxxxxx");
-      fs.readFile("c://a.jpg", "utf-8", (err, base64) => {
-        if (err) throw err;
-      });
       // let base64 = fs.readFileSync("c://a.jpg");
 
       let params = { photo: base64 };
@@ -288,7 +276,7 @@ export default {
 
     Capture() {
       console.log("点击了拍照!");
-      let newFile = "C://b//word//media//image1.png";
+      let newFile = "C://temp//sfz.png";
       var files = CamSDKOCX.CaptureImage(newFile);
       console.log("files:" + files);
       return newFile;
@@ -299,6 +287,7 @@ export default {
         var files = this.Capture();
         var arrFile = new Array(); //定义一数组
         arrFile = files.split(";"); //字符分割
+
         var arrFileShow = new Array();
         console.log("zzzzzzzzzzzzzzzzzzzzz" + arrFile.length);
 
@@ -394,13 +383,13 @@ export default {
 }
 
 .img-avatar {
-  width: 450px;
-  height: 455px;
+  width: 500px;
+  height: 250px;
   position: absolute;
 }
 
-.rz-picter1 {
-  // width: 300px;
+.rz-picter {
+  width: 300px;
   // height: 200px;
   // margin: 0.3rem auto;
   // border: 0.01rem solid #ededed;
@@ -411,54 +400,43 @@ export default {
   // background-color: #f1f1f1;
   // position: absolute;
 
-  background-color: #aaa;
+  // background-color: #aaa;
   width: 100%;
-  height: 300px;
+  // height: 300px;
   padding: 20px;
 }
 
-.rz-picter2 {
-  width: 30px;
-  height: 20px;
-  margin: 0.3rem auto;
-  border: 0.01rem solid #ededed;
-  // display: flex;
-  // flex-direction: column;
-  align-items: center;
-  // justify-content: center;
-  background-color: #f1f1f1;
-  position: absolute;
-  padding: 80px;
-}
-
 .uppic {
-  width: 30px;
-  height: 20px;
+   width: 500px;
+  // height: 80px;
   // margin: 0 auto;
-  // opacity: 0;
-  // z-index: 99999;
-  position: absolute;
-  padding: 80px;
+  // // opacity: 0;
+  // // z-index: 99999;
+  // position: absolute;
+  // padding: 80px;
+  background-color: burlywood;
+  margin-top: 250px;
+    margin-right: 40px;
 }
 
 .all-page-left {
   float: left;
   width: 33%;
-  background-color: red;
+  // background-color: red;
   padding-right: 20px;
 }
 
 .all-page-middle {
   float: left;
   width: 33%;
-  background-color: yellow;
+  // background-color: yellow;
   padding: 20px;
 }
 
 .all-page-right {
-  float: left;
+  float: right;
   width: 34%;
-  background-color: greenyellow;
+  // background-color: green;
   padding-left: 20px;
 }
 </style>
