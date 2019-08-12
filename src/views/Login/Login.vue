@@ -16,7 +16,7 @@
       <div class="page-top">
         <el-button>导入人员</el-button>
         <el-button type="button" @click="makeContract()">生成合同</el-button>
-        <el-button type="button" @click="CaptureShow()">拍照</el-button>
+        <el-button type="button" @click="CaptureBase64()">拍照</el-button>
         <el-button>保存</el-button>
       </div>
 
@@ -43,7 +43,6 @@
           @change="changeImage1($event)"
           ref="avatarInput"
           class="uppic"
-
         />
       </div>
 
@@ -60,7 +59,6 @@
           @change="changeImage2($event)"
           ref="avatarInput"
           class="uppic"
-
         />
       </div>
     </div>
@@ -79,8 +77,9 @@ export default {
   name: "login",
   data() {
     return {
-      avatar1: require("../../assets/images/1.jpg"),
-      avatar2: require("../../assets/images/2.jpg"),
+      avatar1: require("../../../static/img/1.jpg"),
+      avatar2: require("../../../static/img/2.jpg"),
+      avatar1Used: false,
       device: "",
       arrDevice: [],
       tableData: [
@@ -135,20 +134,96 @@ export default {
       reader.readAsDataURL(file);
       reader.onload = function(e) {
         that.avatar1 = this.result;
+        console.log("aaaaaaaaaaa" + that.avatar1);
       };
     },
 
     changeImage2(e) {
       var file = e.target.files[0];
 
-      console.log('file'+file);
+      console.log("file" + file);
       var reader = new FileReader();
       var that = this;
       reader.readAsDataURL(file);
       console.log(JSON.stringify(reader));
       reader.onload = function(e) {
-        that.avatar2 = this.result;
+        let base64 = this.result;
+        that.avatar2 = base64;
       };
+    },
+
+    makeContract() {
+      // let base64 = fs.readFileSync("c://a.jpg");
+      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+      if (this.avatar1.length < 200 || this.avatar2.length < 200) {
+        alert("请选择身份证照片");
+        return;
+      }
+      let params = { base64_1: this.avatar1, base64_2: this.avatar2 };
+      return commonAxios("post", `http://127.0.0.1:7001`, params);
+    },
+
+    showImageBase64(strBase64) {
+      let zp = "data:image/jpeg;base64," + strBase64;
+      if (this.avatar1Used) {
+        this.avatar2 = zp;
+        // document.getElementById("avatarId2").src = zp;
+        this.avatar1Used = false;
+      } else {
+        this.avatar1 = zp;
+        // document.getElementById("avatarId1").src = zp;
+        this.avatar1Used = true;
+      }
+    },
+
+    CaptureBase64() {
+      var files = this.Capture();
+      var strs = new Array(); //定义一数组
+      strs = files.split(";"); //字符分割
+      for (let i = 0; i < strs.length; i++) {
+        var strBase64 = CamSDKOCX.EncodeBase64(strs[i]);
+        //显示到窗口
+        this.showImageBase64(strBase64);
+      }
+    },
+
+    Capture() {
+      try {
+        let newFile = "c://temp/sfz.jpg";
+        var files = CamSDKOCX.CaptureImage(newFile);
+        return newFile;
+      } catch (error) {
+        alert(error);
+      }
+    },
+
+    CaptureShow() {
+      try {
+        var files = this.Capture();
+        var arrFile = new Array(); //定义一数组
+        arrFile = files.split(";"); //字符分割
+
+        var arrFileShow = new Array();
+        console.log("zzzzzzzzzzzzzzzzzzzzz" + arrFile.length);
+
+        for (let i = 0; i < arrFile.length; i++) {
+          console.log("11111111111111111");
+          var cropType = 0; //document.getElementById("autocrop").value;
+          console.log("bbbbbbbbbbb");
+          if (cropType == "2") {
+            console.log("ccccccc");
+            arrFileShow = arrFile[i].split(".");
+            CamSDKOCX.ShowImage(
+              arrFileShow[0] + "_" + i + "." + arrFileShow[1]
+            );
+          } else {
+            console.log("ddddddddddddddd");
+            CamSDKOCX.ShowImage(arrFile[i]);
+          }
+        }
+      } catch (error) {
+        console.log("capshow" + error);
+      }
     },
 
     InitCamOCX() {
@@ -267,68 +342,6 @@ export default {
       CamSDKOCX.SetMediaType(index);
     },
 
-    makeContract(photo) {
-      // let base64 = fs.readFileSync("c://a.jpg");
-
-      let params = { photo: base64 };
-      return commonAxios("post", `http://127.0.0.1:7001`, params);
-    },
-
-    Capture() {
-      console.log("点击了拍照!");
-      let newFile = "C://temp//sfz.png";
-      var files = CamSDKOCX.CaptureImage(newFile);
-      console.log("files:" + files);
-      return newFile;
-    },
-
-    CaptureShow() {
-      try {
-        var files = this.Capture();
-        var arrFile = new Array(); //定义一数组
-        arrFile = files.split(";"); //字符分割
-
-        var arrFileShow = new Array();
-        console.log("zzzzzzzzzzzzzzzzzzzzz" + arrFile.length);
-
-        for (let i = 0; i < arrFile.length; i++) {
-          console.log("11111111111111111");
-          var cropType = 0; //document.getElementById("autocrop").value;
-          console.log("bbbbbbbbbbb");
-          if (cropType == "2") {
-            console.log("ccccccc");
-            arrFileShow = arrFile[i].split(".");
-            CamSDKOCX.ShowImage(
-              arrFileShow[0] + "_" + i + "." + arrFileShow[1]
-            );
-          } else {
-            console.log("ddddddddddddddd");
-            CamSDKOCX.ShowImage(arrFile[i]);
-          }
-        }
-      } catch (error) {
-        console.log("capshow" + error);
-      }
-    },
-
-    showImageBase64(strBase64) {
-      document.getElementById("imgPreview").src =
-        "data:image/jpeg;base64," + strBase64;
-    },
-
-    CaptureBase64(obj) {
-      let CamSDKOCX = window.CamSDKOCX;
-      var files = this.Capture();
-      var strs = new Array(); //定义一数组
-      strs = files.split(";"); //字符分割
-      for (i = 0; i < strs.length; i++) {
-        var strBase64 = CamSDKOCX.EncodeBase64(strs[i]);
-        //alert(strBase64);
-        //显示到窗口
-        showImageBase64(strBase64);
-      }
-    },
-
     UnInitCamOCX() {
       CamSDKOCX.UnInitCameraLib();
     }
@@ -407,7 +420,7 @@ export default {
 }
 
 .uppic {
-   width: 500px;
+  width: 500px;
   // height: 80px;
   // margin: 0 auto;
   // // opacity: 0;
@@ -416,7 +429,7 @@ export default {
   // padding: 80px;
   background-color: burlywood;
   margin-top: 250px;
-    margin-right: 40px;
+  margin-right: 40px;
 }
 
 .all-page-left {
