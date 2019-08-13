@@ -8,7 +8,6 @@ import store from './store'
 import './plugins/element'
 import 'swiper/dist/css/swiper.min.css';
 import './assets/css/theme.scss';
-console.log('111111111111XXXXXXXXXX',process.env.NODE_ENV)
 
 
 // Vue.use(API);
@@ -17,7 +16,7 @@ console.log('111111111111XXXXXXXXXX',process.env.NODE_ENV)
 Vue.config.productionTip = false;
 
 
-let aaa = new Vue({
+new Vue({
   el: '#app',
   store,
   router,

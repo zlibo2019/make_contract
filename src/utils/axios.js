@@ -1,6 +1,6 @@
 import axios from 'axios';
-import router from '../router/index';
 import { Message } from 'element-ui'
+
 
 
 const msgDuration = '2000';//Message 提示时间
@@ -90,9 +90,10 @@ axios.interceptors.response.use(res => {
 
 //通用axios
 export const commonAxios = (type, url, params) => {
-    console.log('xxxxxxxxxxxxxxxxxxxxx');
+    console.log('type.......'+type);
     if (type.toUpperCase() == 'GET' || type.toUpperCase() == 'DELETE') {
         if (process.env.NODE_ENV == 'mock') {
+            console.log('11111111111111111111111');
             return axios({
                 method: type,
                 url: `${url}`,
@@ -102,6 +103,7 @@ export const commonAxios = (type, url, params) => {
                 }
             })
         } else {
+            console.log('22222222222222222');
             return axios({
                 method: type,
                 url: `${url}`,
@@ -113,6 +115,7 @@ export const commonAxios = (type, url, params) => {
         }
 
     } else {
+        console.log('333333333333333333333333333');
         return axios({
             method: type,
             url: `${url}`,

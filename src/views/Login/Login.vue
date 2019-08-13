@@ -134,7 +134,6 @@ export default {
       reader.readAsDataURL(file);
       reader.onload = function(e) {
         that.avatar1 = this.result;
-        console.log("aaaaaaaaaaa" + that.avatar1);
       };
     },
 
@@ -152,15 +151,42 @@ export default {
       };
     },
 
+    getDocx(params){
+      return commonAxios("post", `http://127.0.0.1:7002/a`, params);
+    },
+
     makeContract() {
+      let self = this;
       // let base64 = fs.readFileSync("c://a.jpg");
-      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
       if (this.avatar1.length < 200 || this.avatar2.length < 200) {
         alert("请选择身份证照片");
         return;
       }
       let params = { base64_1: this.avatar1, base64_2: this.avatar2 };
-      return commonAxios("post", `http://127.0.0.1:7001`, params);
+
+      this.getDocx(params).then(res => {
+console.log(JSON.stringify(res));
+
+        if (res.data.code == 600) {
+          console.log("res................" + JSON.stringify(res.data.data));
+
+          //这里res.data是返回的blob对象
+          var blob = new Blob([res.data.data.data], {
+            type:
+              "application;charset=utf-8"
+          }); //application/vnd.openxmlformats-officedocument.wordprocessingml.document这里表示doc类型
+          var downloadElement = document.createElement("a");
+          var href = window.URL.createObjectURL(blob); //创建下载的链接
+          downloadElement.href = href;
+          downloadElement.download = "b.docx"; //下载后文件名
+          document.body.appendChild(downloadElement);
+          downloadElement.click(); //点击下载
+          document.body.removeChild(downloadElement); //下载完成移除元素
+          window.URL.revokeObjectURL(href); //释放掉blob对象
+        } else {
+        }
+      });
+      console.log('aaaaaaaaaaaaaaaa');
     },
 
     showImageBase64(strBase64) {
