@@ -8,7 +8,8 @@ import store from './store'
 import './plugins/element'
 import 'swiper/dist/css/swiper.min.css';
 import './assets/css/theme.scss';
-
+// import Blob from './excel/Blob.js'
+// import Export2Excel from './excel/expor2Excal'
 
 // Vue.use(API);
 // Vue.use(utils);
