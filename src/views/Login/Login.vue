@@ -2,22 +2,7 @@
   <div>
     <div class="all-page-left">
       <div class="page-top">
-        <el-select
-          v-model="device"
-          placeholder="请选择设备"
-          size="medium"
-          style="width:270px;"
-          @change="ChangeDevice"
-        >
-          <el-option v-for="item in arrDevice" :key="item.id" :label="item.name" :value="item.id"></el-option>
-        </el-select>
-      </div>
-
-      <div class="page-top">
-        <el-button @click="downTemplateClick()">下载模板</el-button>
-      </div>
-
-      <div class="page-top">
+        <el-button @click="downTemplateClick()">下载模板</el-button>导入人员
         <input
           id="upload"
           type="file"
@@ -27,14 +12,13 @@
       </div>
 
       <div class="page-top">
-        <el-button type="button" @click="bulkMakeContract()">生成合同</el-button>
-        <el-button type="button" @click="saveClick">保存</el-button>
-        <el-button type="button" @click="queryUserClick">查询</el-button>
-        <el-button type="button" @click="CaptureBase64()">拍照</el-button>
+        <el-button type="button" style="width:120px" @click="bulkMakeContract()">生成合同</el-button>
+        <el-button type="button" style="width:120px" @click="saveClick">保存</el-button>
+        <el-button type="button" style="width:120px" @click="queryUserClick">查询</el-button>
       </div>
 
-      <div class="page-left">
-        <el-table @selection-change="changeBox" :data="tableData" style="width: 100%">
+      <div class="page-top">
+        <el-table @selection-change="changeBox" :data="tableData">
           <el-table-column type="selection" width="30"></el-table-column>
           <el-table-column prop="user_id" label="身份证" width="95"></el-table-column>
           <el-table-column prop="user_name" label="姓名" width="70"></el-table-column>
@@ -43,50 +27,77 @@
       </div>
     </div>
 
-    <div class="all-page-right-top"></div>
-    <div class="all-page-right-bottom">
-      <div class="bottom-left">
-        <img :src="avatar1" class="img-avatar" />
-        <div>
-          <input
-            type="file"
-            name="avatar"
-            id="uppic"
-            accept="image/gif, image/jpeg, image/jpg, image/png"
-            @change="changeImage1($event)"
-            ref="avatarInput"
-            class="uppic"
-          />
-        </div>
-        <img :src="avatar2" class="img-avatar" />
-        <div>
-          <input
-            type="file"
-            name="avatar"
-            id="uppic"
-            accept="image/gif, image/jpeg, image/jpg, image/png"
-            @change="changeImage2($event)"
-            ref="avatarInput"
-            class="uppic"
-          />
-        </div>
+    <div class="all-page-midle">
+      <div>
+        <el-tabs v-model="activeName" @tab-click="handleClick" class="all-page-middle">
+          <el-tab-pane name="first">
+            <div class="bottom-left">
+              <img :src="avatar1" class="img-avatar"/>
+              <div>
+                <input
+                  type="file"
+                  name="avatar"
+                  id="uppic"
+                  accept="image/gif, image/jpeg, image/jpg, image/png"
+                  @change="changeImage1($event)"
+                  ref="avatarInput"
+                  class="uppic"
+                />
+              </div>
+              <img :src="avatar2" class="img-avatar" />
+              <div>
+                <input
+                  type="file"
+                  name="avatar"
+                  id="uppic"
+                  accept="image/gif, image/jpeg, image/jpg, image/png"
+                  @change="changeImage2($event)"
+                  ref="avatarInput"
+                  class="uppic"
+                />
+              </div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane name="second">
+            <div class="bottom-right">
+              <img :src="avatar3" class="img-avatar" style="height: 650px; width: 500px" />
+
+              <div>
+                <input
+                  type="file"
+                  name="avatar"
+                  id="uppic"
+                  accept="image/gif, image/jpeg, image/jpg, image/png"
+                  @change="changeImage3($event)"
+                  ref="avatarInput"
+                  class="uppic"
+                  style="margin-top:680px"
+                />
+              </div>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
       </div>
+    </div>
 
-      <div class="bottom-right">
-        <img :src="avatar3" class="img-avatar" style="height: 450px; width: 350px" />
+    <div class="all-page-right">
+      <div></div>
+      <div class="page-top" style="padding-bottom: 80px;padding-top: 20px;">
+        <el-select
+          v-model="device"
+          placeholder="请选择设备"
+          size="medium"
+          style="width:270px;"
+          @change="ChangeDevice"
+        >
+          <el-option v-for="item in arrDevice" :key="item.id" :label="item.name" :value="item.id"></el-option>
+        </el-select>
 
-        <div>
-          <input
-            type="file"
-            name="avatar"
-            id="uppic"
-            accept="image/gif, image/jpeg, image/jpg, image/png"
-            @change="changeImage3($event)"
-            ref="avatarInput"
-            class="uppic"
-            style="margin-top:465px"
-          />
-        </div>
+        <el-radio-group v-model="radio" @change="changeMakePhoto">
+          <el-radio :label="1">拍身份证</el-radio>
+          <el-radio :label="2">拍合同</el-radio>
+        </el-radio-group>
+        <el-button type="button" @click="CaptureBase64()">拍照</el-button>
       </div>
     </div>
   </div>
@@ -96,10 +107,13 @@
 <script>
 import { domAppend } from "@/utils/load_ocx.js"; //我的动态创建元素的方法放于的文件夹
 import { commonAxios, deleteAxios, putAxios } from "../../utils/axios.js";
+var CO = require("co");
 export default {
   name: "login",
   data() {
     return {
+      radio: 1,
+      activeName: "first",
       checkBoxData: [], //多选框选择的值
       avatar1: require("../../../static/img/1.jpg"),
       avatar2: require("../../../static/img/1.jpg"),
@@ -117,6 +131,17 @@ export default {
     };
   },
   methods: {
+    changeMakePhoto(index) {
+      if (index === 1) {
+        this.activeName = "first";
+      } else if (index === 2) {
+        this.activeName = "second";
+      }
+    },
+
+    handleClick(tab, event) {
+      console.log(tab, event);
+    },
     changeBox(val) {
       this.checkBoxData = val;
     },
@@ -222,7 +247,16 @@ export default {
             let user = {
               user_id: curUser.身份证,
               user_name: curUser.姓名,
-              user_address: curUser.地址
+              user_address: curUser.地址,
+              contract_no:curUser.合同编号,
+              user_no:curUser.劳工编号,
+              user_age:curUser.年龄,
+              user_sex:curUser.性别,
+              user_nation:curUser.民族,
+              user_census:curUser.户籍,
+              skills_certificate_no:curUser.技能证书编号,
+              user_telephone:curUser.电话,
+              
             };
             arrUser.push(user);
           }
@@ -263,65 +297,97 @@ export default {
 
     saveClick() {
       let self = this;
+      let base64_1, base64_2, base64_3;
+      if (this.activeName === "first") {
+        base64_1 = this.avatar1;
+        base64_2 = this.avatar2;
+        base64_3 = null;
+      } else {
+        base64_1 = null;
+        base64_2 = null;
+        base64_3 = this.avatar3;
+      }
       let params = {
-        user_id: this.tableData[0].user_id,
-        base64_1: this.avatar1,
-        base64_2: this.avatar2,
-        base64_3: this.avatar3
+        user_id: this.checkBoxData[0].user_id,
+        base64_1: base64_1,
+        base64_2: base64_2,
+        base64_3: base64_3
       };
+      console.log(JSON.stringify(this.tableData));
       this.saveUserPhoto(params).then(res => {
         console.log(JSON.stringify(res));
         if (res.data.code == 600) {
+          alert('save success');
         } else {
+          alert('save fail');
         }
       });
     },
 
     bulkMakeContract() {
-      for (let i = 0; i < this.checkBoxData.length; i++) {
-        let user = this.checkBoxData[i];
-        let userId = user.user_id;
-        this.makeContract(userId);
-      }
-    },
-
-    makeContract(userId) {
       let self = this;
-
-      // let base64 = fs.readFileSync("c://a.jpg");
-      // if (this.avatar1.length < 200 || this.avatar2.length < 200) {
-      //   alert("请选择身份证照片");
-      //   return;
-      // }
-      let params = {userId:userId};
-
-      this.makeDocx(params).then(res => {
-        console.log(JSON.stringify(res));
-
-        if (res.data.code == 600) {
-          let filePath = res.data.data;
-          var downloadElement = document.createElement("a");
-          downloadElement.href = filePath;
-          document.body.appendChild(downloadElement);
-          downloadElement.click(); //点击下载
-          document.body.removeChild(downloadElement); //下载完成移除元素
-          window.URL.revokeObjectURL(href); //释放掉blob对象
-        } else {
+      return CO(function*() {
+        for (let i = 0; i < self.checkBoxData.length; i++) {
+          let curUser = self.checkBoxData[i];
+          let user = {
+            userId:curUser.user_id,
+            userAddress:curUser.user_address,
+            userName:curUser.user_name,
+            user
+          }
+          let url = yield self.makeContract(user);
+          alert(url);
+          self.downloadFile(url);
         }
       });
+    },
+
+    downloadFile(url) {
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none"; // 防止影响页面
+      iframe.style.height = 0; // 防止影响页面
+      iframe.src = url;
+      document.body.appendChild(iframe); // 这一行必须，iframe挂在到dom树上才会发请求
+      // 5分钟之后删除（onload方法对于下载链接不起作用，就先抠脚一下吧）
+      setTimeout(() => {
+        iframe.remove();
+      }, 10 * 1000);
+    },
+
+    makeContract(user) {
+      let self = this;
+      let params = user;
+
+      return new Promise(function(resolve, reject) {
+        self.makeDocx(params).then(res => {
+          console.log(JSON.stringify(res));
+
+          if (res.data.code == 600) {
+            let filePath = res.data.data;
+            resolve(filePath);
+          } else {
+            reject(error);
+          }
+        });
+      });
+
       console.log("aaaaaaaaaaaaaaaa");
     },
 
     showImageBase64(strBase64) {
       let zp = "data:image/jpeg;base64," + strBase64;
-      if (this.avatar1Used) {
-        this.avatar2 = zp;
-        // document.getElementById("avatarId2").src = zp;
-        this.avatar1Used = false;
+      if (this.activeName === "first") {
+        if (this.avatar1Used) {
+          this.avatar2 = zp;
+          // document.getElementById("avatarId2").src = zp;
+          this.avatar1Used = false;
+        } else {
+          this.avatar1 = zp;
+          // document.getElementById("avatarId1").src = zp;
+          this.avatar1Used = true;
+        }
       } else {
-        this.avatar1 = zp;
-        // document.getElementById("avatarId1").src = zp;
-        this.avatar1Used = true;
+        this.avatar3 = zp;
       }
     },
 
@@ -499,8 +565,9 @@ export default {
     for (let i = 0; i < arrObj.length; i++) {
       if (arrObj[i].getAttribute("id") == "CamSDKOCX") return (flag = true);
     }
+
     if (!flag) {
-      let list = document.getElementsByClassName("all-page-right-top");
+      let list = document.getElementsByClassName("all-page-right");
       let div = list[0];
       domAppend(div, "CamSDKOCX");
     }
@@ -519,9 +586,10 @@ export default {
 }
 .page-top {
   width: 100%;
+  padding-top: 20px;
 }
 .page-left {
-  width: 600px;
+  width: 500px;
   background-color: green;
   position: absolute;
 }
@@ -545,8 +613,8 @@ export default {
 }
 
 .img-avatar {
-  width: 380px;
-  height: 250px;
+  width: 420px;
+  height: 300px;
   position: absolute;
 }
 
@@ -577,7 +645,7 @@ export default {
   // position: absolute;
   // padding: 80px;
   // background-color: burlywood;
-  margin-top: 250px;
+  margin-top: 320px;
   margin-right: 40px;
 }
 
@@ -585,20 +653,20 @@ export default {
   float: left;
   width: 30%;
   // background-color: red;
-  padding-right: 20px;
+  padding-left: 10px;
 }
-.all-page-right-top {
-  float: right;
-  width: 70%;
-  height: 10%;
+.all-page-middle {
+  float: left;
+  width: 30%;
+  // height: 10%;
   // background-color: green;
-  padding-left: 20px;
+  // padding-left: 20px;
 }
-.all-page-right-bottom {
+.all-page-right {
   float: right;
-  width: 70%;
+  width: 30%;
   // background-color:blueviolet;
-  padding-left: 20px;
+  padding-left: 10px;
 }
 
 .bottom-left {
