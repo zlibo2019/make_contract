@@ -107,6 +107,8 @@
 <script>
 import { domAppend } from "@/utils/load_ocx.js"; //我的动态创建元素的方法放于的文件夹
 import { commonAxios, deleteAxios, putAxios } from "../../utils/axios.js";
+import Base from "@/api/base";
+
 var CO = require("co");
 export default {
   name: "login",
@@ -149,7 +151,8 @@ export default {
     downTemplateClick() {
       var downloadElement = document.createElement("a");
       downloadElement.href =
-        "http://10.1.0.16:7001/public/docx/template_user.xlsx";
+        `${Base.server}/public/docx/template_user.xlsx`;
+        alert(downloadElement.href);
       // downloadElement.download = "b.docx"; //下载后文件名
       document.body.appendChild(downloadElement);
       downloadElement.click(); //点击下载
@@ -196,16 +199,16 @@ export default {
     },
 
     makeDocx(params) {
-      return commonAxios("post", `http://127.0.0.1:7001/makeDocx`, params);
+      return commonAxios("post", `${Base.server}/makeDocx`, params);
     },
     upXlsxData(params) {
-      return commonAxios("post", `http://127.0.0.1:7001/upXlsxData`, params);
+      return commonAxios("post", `${Base.server}/upXlsxData`, params);
     },
     queryUser(params) {
-      return commonAxios("post", `http://127.0.0.1:7001/queryUser`, params);
+      return commonAxios("post", `${Base.server}/queryUser`, params);
     },
     saveUserPhoto(params) {
-      return commonAxios("post", `http://127.0.0.1:7001/saveUserPhoto`, params);
+      return commonAxios("post", `${Base.server}/saveUserPhoto`, params);
     },
 
     importXlsx(obj) {

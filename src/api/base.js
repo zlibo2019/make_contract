@@ -7,12 +7,11 @@
 import Vue from 'vue'
 const Base = {
 //   bd: 'http://10.0.0.95:7000/',
-  zyj: 'http://weds.xknow.net/',
+  // zyj: 'http://weds.xknow.net/',
 //   bd: 'http://weds.xknow.net/',
-  bd: 'http://wxk12test.xknow.net/node/',
+  // bd: 'http://wxk12test.xknow.net/node/',
 //   bd: '/nodeApi/',
-  oldUrl: '/httpApi/',
-  bd: 'http://10.1.0.27:7000/',
+  server: 'http://10.1.0.16:7001',
 //   bd: ''
 }
 
