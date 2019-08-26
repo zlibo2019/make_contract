@@ -20,9 +20,9 @@
       <div class="page-top">
         <el-table @selection-change="changeBox" :data="tableData">
           <el-table-column type="selection" width="30"></el-table-column>
-          <el-table-column prop="user_id" label="身份证" width="95"></el-table-column>
-          <el-table-column prop="user_name" label="姓名" width="70"></el-table-column>
-          <el-table-column prop="user_address" label="地址" width="150"></el-table-column>
+          <el-table-column prop="userId" label="身份证" width="95"></el-table-column>
+          <el-table-column prop="userName" label="姓名" width="70"></el-table-column>
+          <el-table-column prop="userAddress" label="地址" width="150"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -32,7 +32,7 @@
         <el-tabs v-model="activeName" @tab-click="handleClick" class="all-page-middle">
           <el-tab-pane name="first">
             <div class="bottom-left">
-              <img :src="avatar1" class="img-avatar"/>
+              <img :src="avatar1" class="img-avatar" />
               <div>
                 <input
                   type="file"
@@ -115,9 +115,9 @@ export default {
       radio: 1,
       activeName: "first",
       checkBoxData: [], //多选框选择的值
-      avatar1: require("../../../static/img/1.jpg"),
-      avatar2: require("../../../static/img/1.jpg"),
-      avatar3: require("../../../static/img/1.jpg"),
+      avatar1: null,
+      avatar2: null, // require("../../../static/img/1.jpg"),
+      avatar3: null, //require("../../../static/img/1.jpg"),
       avatar1Used: false,
       device: "",
       arrDevice: [],
@@ -170,11 +170,11 @@ export default {
     changeImage2(e) {
       var file = e.target.files[0];
 
-      console.log("file" + file);
+      // console.log("file" + file);
       var reader = new FileReader();
       var that = this;
       reader.readAsDataURL(file);
-      console.log(JSON.stringify(reader));
+      // console.log(JSON.stringify(reader));
       reader.onload = function(e) {
         let base64 = this.result;
         that.avatar2 = base64;
@@ -240,33 +240,75 @@ export default {
               type: "binary"
             });
           }
+
+          // 解析字段配置
+          let arrField = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[1]]); //outdata就是你想要的东西
+
           let arrData = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]); //outdata就是你想要的东西
           let arrUser = new Array();
           for (let i = 0; i < arrData.length; i++) {
             let curUser = arrData[i];
-            let user = {
-              user_id: curUser.身份证,
-              user_name: curUser.姓名,
-              user_address: curUser.地址,
-              contract_no:curUser.合同编号,
-              user_no:curUser.劳工编号,
-              user_age:curUser.年龄,
-              user_sex:curUser.性别,
-              user_nation:curUser.民族,
-              user_census:curUser.户籍,
-              skills_certificate_no:curUser.技能证书编号,
-              user_telephone:curUser.电话,
-              
-            };
+            let user = {};
+
+            for (let j = 0; j < arrField.length; j++) {
+              let curTableField = arrField[j].数据库字段名.replace(
+                /^\s*|\s*$/g,
+                ""
+              ); // 去除两边空格
+              let curXlsxField = arrField[j].档案导入字段名.replace(
+                /^\s*|\s*$/g,
+                ""
+              ); // 去除两边空格
+              user[curTableField] = curUser[curXlsxField];
+              // eval(user1.curTableField = curUser.curXlsxField);
+            }
+            // user1;
+            // let user = {
+            //   user_id: curUser.身份证,
+            //   user_name: curUser.姓名,
+            //   user_address: curUser.地址,
+            //   contract_no: curUser.合同编号,
+            //   user_no: curUser.劳工编号,
+            //   user_age: curUser.年龄,
+            //   user_sex: curUser.性别,
+            //   user_nation: curUser.民族,
+            //   user_census: curUser.户籍,
+            //   skills_certificate_no: curUser.技能证书编号,
+            //   user_telephone: curUser.手机号码,
+            //   date_which_no: curUser.本合同期限执行下列第款,
+            //   contract_begin: curUser.合同自始,
+            //   contract_end: curUser.至终,
+            //   qualifying_months: curUser.试用期几个月,
+            //   qualifying_begin: curUser.试用期开始,
+            //   qualifying_end: curUser.试用期结束,
+            //   contract_begin2: curUser.合同自始2,
+            //   qualifying_months2: curUser.试用期2,
+            //   qualifying_begin2: curUser.试用期开始2,
+            //   qualifying_end2: curUser.试用期结束2,
+            //   project_name: curUser.工程,
+            //   user_job: curUser.岗位,
+            //   job_content: curUser.工作内容,
+            //   job_position: curUser.工作地点,
+            //   salary_which_no: curUser.工资结算执行第款,
+            //   work_hours_one_day: curUser.日结每日工作时间,
+            //   work_days_one_week: curUser.每周工作天数,
+            //   salary_one_day: curUser.生活费多少元每天,
+            //   quality_type: curUser.计件_优良_合格,
+            //   opening_bank: curUser.开户行,
+            //   user_bank_account: curUser.银行卡号,
+            //   signing_date: curUser.签订日期,
+            //   user_birthday: curUser.出生日期
+            // };
             arrUser.push(user);
           }
           let params = { arrData: arrUser };
           _this.upXlsxData(params).then(res => {
             console.log(JSON.stringify(res));
-            _this.tableData = arrUser;
             if (res.data.code == 600) {
+              _this.tableData = arrUser;
               alert("导入成功");
             } else {
+              alert("导入失败:" + res.data.msg);
             }
           });
           // _this.$message({
@@ -297,15 +339,26 @@ export default {
 
     saveClick() {
       let self = this;
+      if (self.checkBoxData.length === 0) {
+        alert("请选择人员!");
+        return;
+      }
+
       let base64_1, base64_2, base64_3;
       if (this.activeName === "first") {
         base64_1 = this.avatar1;
         base64_2 = this.avatar2;
+        if (null === base64_1 || null === base64_2) {
+          alert("请拍照或导入照片");
+        }
         base64_3 = null;
       } else {
         base64_1 = null;
         base64_2 = null;
         base64_3 = this.avatar3;
+        if (null === base64_3) {
+          alert("请拍照或导入照片");
+        }
       }
       let params = {
         user_id: this.checkBoxData[0].user_id,
@@ -315,11 +368,11 @@ export default {
       };
       console.log(JSON.stringify(this.tableData));
       this.saveUserPhoto(params).then(res => {
-        console.log(JSON.stringify(res));
+        // console.log(JSON.stringify(res));
         if (res.data.code == 600) {
-          alert('save success');
+          alert("save success");
         } else {
-          alert('save fail');
+          alert("save fail");
         }
       });
     },
@@ -329,13 +382,41 @@ export default {
       return CO(function*() {
         for (let i = 0; i < self.checkBoxData.length; i++) {
           let curUser = self.checkBoxData[i];
-          let user = {
-            userId:curUser.user_id,
-            userAddress:curUser.user_address,
-            userName:curUser.user_name,
-            user
-          }
-          let url = yield self.makeContract(user);
+          // let user = {
+          //   userId: curUser.user_id,
+          //   userAddress: curUser.user_address,
+          //   userName: curUser.user_name,
+          //   contractNo: curUser.contract_no,
+          //   userNo: curUser.user_no,
+          //   userAge: curUser.user_age,
+          //   userSex: curUser.user_sex,
+          //   userNation: curUser.user_nation,
+          //   userCensus: curUser.user_census,
+          //   skillsCertificateNo: curUser.skills_certificate_no,
+          //   userTelephone: curUser.user_telephone,
+          //   dateWhichNo: curUser.date_which_no,
+          //   contractBegin: curUser.contract_begin,
+          //   contractEnd: curUser.contract_end,
+          //   qualifyingMonths: curUser.qualifying_months,
+          //   qualifyingBegin: curUser.qualifying_begin,
+          //   qualifyingEnd: curUser.qualifying_end,
+          //   contractBegin2: curUser.contract_begin2,
+          //   qualifyingMonths2: curUser.qualifying_months2,
+          //   qualifyingBegin2: curUser.qualifying_begin2,
+          //   qualifyingEnd2: curUser.qualifying_end2,
+          //   projectName: curUser.project_name,
+          //   userJob: curUser.user_job,
+          //   jobContent: curUser.job_content,
+          //   jobPosition: curUser.job_position,
+          //   salaryWhichNo: curUser.salary_which_no,
+          //   workHoursOneDay: curUser.work_hours_one_day,
+          //   workDaysOneWeek: curUser.work_days_one_week,
+          //   salaryOneDay: curUser.salary_one_day,
+          //   qualityType: curUser.quality_type,
+          //   userBankAccount: curUser.user_bank_account,
+          //   userBirthday: curUser.user_birthday
+          // };
+          let url = yield self.makeContract(curUser);
           alert(url);
           self.downloadFile(url);
         }
@@ -360,13 +441,13 @@ export default {
 
       return new Promise(function(resolve, reject) {
         self.makeDocx(params).then(res => {
-          console.log(JSON.stringify(res));
+          // console.log(JSON.stringify(res));
 
           if (res.data.code == 600) {
             let filePath = res.data.data;
             resolve(filePath);
           } else {
-            reject(error);
+            reject(res.data.msg);
           }
         });
       });
@@ -616,6 +697,7 @@ export default {
   width: 420px;
   height: 300px;
   position: absolute;
+  background-color: yellowgreen;
 }
 
 // .rz-picter {
