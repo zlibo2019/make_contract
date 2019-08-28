@@ -2,24 +2,113 @@
   <div>
     <div class="all-page-left">
       <div class="page-top">
-        <el-button @click="downTemplateClick()">下载模板</el-button>导入人员
-        <input
-          id="upload"
-          type="file"
-          @change="importXlsx(this)"
-          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-        />
+        <div>
+          <el-button @click="downUserTemplateClick()">下载档案模板</el-button>
+          <el-button @click="downContractTemplateClick()">下载合同模板</el-button>
+        </div>
+
+        <div style="padding-top: 20px;">
+          <el-upload
+            class="upload-demo"
+            ref="uploadUpUserTemplate"
+            :http-request="httpRequestUpUserTemplate"
+            :before-upload="beforeFileUploadUpUser"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :before-remove="beforeRemove"
+            multiple
+            :limit="1"
+            :on-exceed="handleExceed"
+            :file-list="fileList"
+            :auto-upload="false"
+          >
+            <!-- <el-button size="small" type="primary">点击上传</el-button> -->
+            <el-button slot="trigger" size="small" type="primary">选择档案模板</el-button>
+            <el-button
+              style="margin-left: 10px;"
+              size="small"
+              type="success"
+              @click="submitUploadUpUserTemplate"
+            >上传档案模板</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传xlsx文件</div>
+          </el-upload>
+        </div>
+
+        <div style="padding-top: 20px;">
+          <el-upload
+            class="upload-demo"
+            ref="uploadUpContractTemplate"
+            :http-request="httpRequestUpContractTemplate"
+            :before-upload="beforeFileUploadUpContractTemplate"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :before-remove="beforeRemove"
+            multiple
+            :limit="1"
+            :on-exceed="handleExceed"
+            :file-list="fileList"
+            :auto-upload="false"
+          >
+            <!-- <el-button size="small" type="primary">点击上传</el-button> -->
+            <el-button slot="trigger" size="small" type="primary">选择合同模板</el-button>
+            <el-button
+              style="margin-left: 10px;"
+              size="small"
+              type="success"
+              @click="submitUploadUpContractTemplate"
+            >上传合同模板</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传docx文件</div>
+          </el-upload>
+        </div>
+
+        <div style="padding-top: 20px;">
+          <el-upload
+            class="upload-demo"
+            ref="uploadUpUser"
+            :http-request="httpRequestUpUser"
+            :before-upload="beforeFileUploadUpUser"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :before-remove="beforeRemove"
+            multiple
+            :limit="1"
+            :on-exceed="handleExceed"
+            :file-list="fileList"
+            :auto-upload="false"
+          >
+            <!-- <el-button size="small" type="primary">点击上传</el-button> -->
+            <el-button slot="trigger" size="small" type="primary">选择档案文件</el-button>
+            <el-button
+              style="margin-left: 10px;"
+              size="small"
+              type="success"
+              @click="submitUploadUpUser"
+            >导入档案文件</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传xlsx文件</div>
+          </el-upload>
+        </div>
+
+        <!-- <div style="padding-top: 20px;">
+          导入人员
+          <input
+            id="upload"
+            type="file"
+            @change="importXlsx(this)"
+            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+          />
+        </div>-->
       </div>
 
       <div class="page-top">
-        <el-button type="button" style="width:120px" @click="bulkMakeContract()">生成合同</el-button>
-        <el-button type="button" style="width:120px" @click="saveClick">保存</el-button>
+        <el-button type="button" style="width:120px" @click="saveClick">保存照片</el-button>
         <el-button type="button" style="width:120px" @click="queryUserClick">查询</el-button>
+        <el-button type="button" style="width:120px" @click="bulkMakeContract()">生成合同</el-button>
       </div>
 
       <div class="page-top">
         <el-table @selection-change="changeBox" :data="tableData">
           <el-table-column type="selection" width="30"></el-table-column>
+          <el-table-column prop="contractNo" label="合同编号" width="95"></el-table-column>
           <el-table-column prop="userId" label="身份证" width="95"></el-table-column>
           <el-table-column prop="userName" label="姓名" width="70"></el-table-column>
           <el-table-column prop="userAddress" label="地址" width="150"></el-table-column>
@@ -30,11 +119,12 @@
     <div class="all-page-midle">
       <div>
         <el-tabs v-model="activeName" @tab-click="handleClick" class="all-page-middle">
-          <el-tab-pane name="first">
+          <el-tab-pane name="first" label="拍身份证">
             <div class="bottom-left">
               <img :src="avatar1" class="img-avatar" />
               <div>
                 <input
+                  style="margin-top: 280px"
                   type="file"
                   name="avatar"
                   id="uppic"
@@ -44,7 +134,7 @@
                   class="uppic"
                 />
               </div>
-              <img :src="avatar2" class="img-avatar" />
+              <img :src="avatar2" class="img-avatar" style="margin-top: 40px;" />
               <div>
                 <input
                   type="file"
@@ -58,10 +148,9 @@
               </div>
             </div>
           </el-tab-pane>
-          <el-tab-pane name="second">
+          <el-tab-pane name="second" label="拍合同">
             <div class="bottom-right">
               <img :src="avatar3" class="img-avatar" style="height: 650px; width: 500px" />
-
               <div>
                 <input
                   type="file"
@@ -81,8 +170,7 @@
     </div>
 
     <div class="all-page-right">
-      <div></div>
-      <div class="page-top" style="padding-bottom: 80px;padding-top: 20px;">
+      <div class="page-top" style="padding-bottom: 100px;padding-top: 13px;">
         <el-select
           v-model="device"
           placeholder="请选择设备"
@@ -92,13 +180,9 @@
         >
           <el-option v-for="item in arrDevice" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
-
-        <el-radio-group v-model="radio" @change="changeMakePhoto">
-          <el-radio :label="1">拍身份证</el-radio>
-          <el-radio :label="2">拍合同</el-radio>
-        </el-radio-group>
         <el-button type="button" @click="CaptureBase64()">拍照</el-button>
       </div>
+      <div class="ocx"></div>
     </div>
   </div>
 </template>
@@ -114,25 +198,190 @@ export default {
   name: "login",
   data() {
     return {
+      upTemplate: { name: "赵李波" },
       radio: 1,
       activeName: "first",
       checkBoxData: [], //多选框选择的值
-      avatar1: null,
-      avatar2: null, // require("../../../static/img/1.jpg"),
-      avatar3: null, //require("../../../static/img/1.jpg"),
+      avatar1: require("../../../static/img/sfz1.jpg"),
+      avatar2: require("../../../static/img/sfz2.jpg"),
+      avatar3: null,
       avatar1Used: false,
       device: "",
       arrDevice: [],
-      tableData: [
+      tableData: [],
+      fileList: [
         // {
-        //   user_id: "3521201254255212508",
-        //   user_name: "张三",
-        //   user_address: "上海市普陀区金沙江路 1518 弄"
+        //   name: "food.jpeg",
+        //   url:
+        //     "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
+        // },
+        // {
+        //   name: "food2.jpeg",
+        //   url:
+        //     "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
         // }
       ]
     };
   },
   methods: {
+    beforeFileUploadUpContractTemplate(file) {
+      let extName = file.name.split(".")[1];
+      if (extName !== "docx") {
+        // const isLt2M = file.size / 1024 / 1024 < 50;
+        this.$message({
+          message: "只能上传docx文件",
+          type: "warning"
+        });
+        return false;
+      }
+    },
+
+    beforeFileUploadUpUser(file) {
+      let extName = file.name.split(".")[1];
+      if (extName !== "xlsx") {
+        // const isLt2M = file.size / 1024 / 1024 < 50;
+        this.$message({
+          message: "只能上传xlsx文件",
+          type: "warning"
+        });
+        return false;
+      }
+    },
+
+    // 转换base64格式
+    getBase64(file) {
+      return new Promise(function(resolve, reject) {
+        let reader = new FileReader();
+        let imgResult = "";
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          imgResult = reader.result;
+        };
+        reader.onerror = function(error) {
+          reject(error);
+        };
+        reader.onloadend = function() {
+          resolve(imgResult);
+        };
+      });
+    },
+    httpRequestUpContractTemplate(options) {
+      // alert("aaaaaaaaaaaaaaaaa");
+      let self = this;
+      // this.fileName = options.file.name;
+      // this.id = options.data.id;
+      this.getBase64(options.file).then(res => {
+        let fileData = res.split(",")[1];
+        let params = { base64_1: fileData };
+        self
+          .saveContractTemplate(params)
+          .then(res => {
+            this.$message({
+              type: "success",
+              message: "上传成功!"
+            });
+            // this.templetManage();
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      });
+    },
+    httpRequestUpUserTemplate(options) {
+      // alert("aaaaaaaaaaaaaaaaa");
+      let self = this;
+      // this.fileName = options.file.name;
+      // this.id = options.data.id;
+      this.getBase64(options.file).then(res => {
+        let fileData = res.split(",")[1];
+        let params = { base64_1: fileData };
+        self
+          .saveUserTemplate(params)
+          .then(res => {
+            this.$message({
+              type: "success",
+              message: "上传成功!"
+            });
+            // this.templetManage();
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      });
+    },
+
+    httpRequestUpUser(options) {
+      // alert('bbbbbbbbbbbbbbbbbbb');
+      let self = this;
+      // this.fileName = options.file.name;
+      // this.id = options.data.id;
+
+      // let fileData = res.split(",")[1];
+      // let params = { base64_1: fileData };
+      self
+        .importXlsx(options.file)
+        .then(res => {
+          this.$message({
+            type: "success",
+            message: "上传成功!"
+          });
+          // this.templetManage();
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    uploadTemplateContractUrl() {
+      return `${Base.server}/saveContractTemplate`;
+    },
+    uploadUserUrl() {
+      return `${Base.server}/upXlsxData`;
+    },
+    submitUploadUpContractTemplate() {
+      this.$refs.uploadUpContractTemplate.submit();
+    },
+    submitUploadUpUserTemplate() {
+      this.$refs.uploadUpUserTemplate.submit();
+    },
+    submitUploadUpUser() {
+      // alert("aaaaaaaaaaaaaaaaaaaaa");
+      this.$refs.uploadUpUser.submit();
+    },
+    upTemplate(obj) {
+      let self = this;
+      var binary = "";
+      let f = event.currentTarget.files[0];
+      var reader = new FileReader();
+      var wb;
+      reader.onload = () => {
+        var bytes = new Uint8Array(reader.result);
+        var length = bytes.byteLength;
+        for (var i = 0; i < length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        var XLSX = require("xlsx");
+
+        wb = XLSX.read(binary, {
+          type: "binary"
+        });
+
+        // alert(wb);
+
+        let params = {
+          base64_1: wb
+        };
+        this.saveContractTemplate(params).then(res => {
+          // console.log(JSON.stringify(res));
+          if (res.data.code == 600) {
+            alert("保存成功!");
+          } else {
+            alert(res.data.msg);
+          }
+        });
+      };
+      reader.readAsBinaryString(f);
+    },
+
     changeMakePhoto(index) {
       if (index === 1) {
         this.activeName = "first";
@@ -148,16 +397,23 @@ export default {
       this.checkBoxData = val;
     },
 
-    downTemplateClick() {
+    downTemplate(name) {
       var downloadElement = document.createElement("a");
-      downloadElement.href =
-        `${Base.server}/public/docx/template_user.xlsx`;
-        alert(downloadElement.href);
+      downloadElement.href = `${Base.server}/public/docx/${name}`;
+      // alert(downloadElement.href);
       // downloadElement.download = "b.docx"; //下载后文件名
       document.body.appendChild(downloadElement);
       downloadElement.click(); //点击下载
       document.body.removeChild(downloadElement); //下载完成移除元素
       window.URL.revokeObjectURL(href); //释放掉blob对象
+    },
+
+    downUserTemplateClick() {
+      this.downTemplate("template_user.xlsx");
+    },
+
+    downContractTemplateClick() {
+      this.downTemplate("template_contract.docx");
     },
 
     changeImage1(e) {
@@ -210,14 +466,21 @@ export default {
     saveUserPhoto(params) {
       return commonAxios("post", `${Base.server}/saveUserPhoto`, params);
     },
-
-    importXlsx(obj) {
+    saveContractTemplate(params) {
+      return commonAxios("post", `${Base.server}/saveContractTemplate`, params);
+    },
+    saveUserTemplate(params) {
+      return commonAxios("post", `${Base.server}/saveUserTemplate`, params);
+    },
+    importXlsx(file) {
       let _this = this;
-      let inputDOM = this.$refs.avatarInput;
+      // let inputDOM = this.$refs.avatarInput;
       // 通过DOM取文件数据
-      this.file = event.currentTarget.files[0];
+      //  this.file = event.currentTarget.files[0];
       var rABS = false; //是否将文件读取为二进制字符串
-      var f = this.file;
+      // var f = this.file;
+
+      let f = file;
       var reader = new FileReader();
       //if (!FileReader.prototype.readAsBinaryString) {
       FileReader.prototype.readAsBinaryString = function(f) {
@@ -263,45 +526,7 @@ export default {
                 ""
               ); // 去除两边空格
               user[curTableField] = curUser[curXlsxField];
-              // eval(user1.curTableField = curUser.curXlsxField);
             }
-            // user1;
-            // let user = {
-            //   user_id: curUser.身份证,
-            //   user_name: curUser.姓名,
-            //   user_address: curUser.地址,
-            //   contract_no: curUser.合同编号,
-            //   user_no: curUser.劳工编号,
-            //   user_age: curUser.年龄,
-            //   user_sex: curUser.性别,
-            //   user_nation: curUser.民族,
-            //   user_census: curUser.户籍,
-            //   skills_certificate_no: curUser.技能证书编号,
-            //   user_telephone: curUser.手机号码,
-            //   date_which_no: curUser.本合同期限执行下列第款,
-            //   contract_begin: curUser.合同自始,
-            //   contract_end: curUser.至终,
-            //   qualifying_months: curUser.试用期几个月,
-            //   qualifying_begin: curUser.试用期开始,
-            //   qualifying_end: curUser.试用期结束,
-            //   contract_begin2: curUser.合同自始2,
-            //   qualifying_months2: curUser.试用期2,
-            //   qualifying_begin2: curUser.试用期开始2,
-            //   qualifying_end2: curUser.试用期结束2,
-            //   project_name: curUser.工程,
-            //   user_job: curUser.岗位,
-            //   job_content: curUser.工作内容,
-            //   job_position: curUser.工作地点,
-            //   salary_which_no: curUser.工资结算执行第款,
-            //   work_hours_one_day: curUser.日结每日工作时间,
-            //   work_days_one_week: curUser.每周工作天数,
-            //   salary_one_day: curUser.生活费多少元每天,
-            //   quality_type: curUser.计件_优良_合格,
-            //   opening_bank: curUser.开户行,
-            //   user_bank_account: curUser.银行卡号,
-            //   signing_date: curUser.签订日期,
-            //   user_birthday: curUser.出生日期
-            // };
             arrUser.push(user);
           }
           let params = { arrData: arrUser };
@@ -314,10 +539,6 @@ export default {
               alert("导入失败:" + res.data.msg);
             }
           });
-          // _this.$message({
-          //   message: "请耐心等待导入成功",
-          //   type: "success"
-          // });
         };
         reader.readAsArrayBuffer(f);
       };
@@ -353,6 +574,7 @@ export default {
         base64_2 = this.avatar2;
         if (null === base64_1 || null === base64_2) {
           alert("请拍照或导入照片");
+          return;
         }
         base64_3 = null;
       } else {
@@ -361,69 +583,41 @@ export default {
         base64_3 = this.avatar3;
         if (null === base64_3) {
           alert("请拍照或导入照片");
+          return;
         }
       }
       let params = {
-        user_id: this.checkBoxData[0].user_id,
+        userId: this.checkBoxData[0].userId,
         base64_1: base64_1,
         base64_2: base64_2,
         base64_3: base64_3
       };
+      // alert(this.checkBoxData[0].userId);
       console.log(JSON.stringify(this.tableData));
       this.saveUserPhoto(params).then(res => {
         // console.log(JSON.stringify(res));
         if (res.data.code == 600) {
-          alert("save success");
+          alert("保存成功");
         } else {
-          alert("save fail");
+          alert("保存失败");
         }
       });
     },
 
     bulkMakeContract() {
       let self = this;
-      return CO(function*() {
-        for (let i = 0; i < self.checkBoxData.length; i++) {
-          let curUser = self.checkBoxData[i];
-          // let user = {
-          //   userId: curUser.user_id,
-          //   userAddress: curUser.user_address,
-          //   userName: curUser.user_name,
-          //   contractNo: curUser.contract_no,
-          //   userNo: curUser.user_no,
-          //   userAge: curUser.user_age,
-          //   userSex: curUser.user_sex,
-          //   userNation: curUser.user_nation,
-          //   userCensus: curUser.user_census,
-          //   skillsCertificateNo: curUser.skills_certificate_no,
-          //   userTelephone: curUser.user_telephone,
-          //   dateWhichNo: curUser.date_which_no,
-          //   contractBegin: curUser.contract_begin,
-          //   contractEnd: curUser.contract_end,
-          //   qualifyingMonths: curUser.qualifying_months,
-          //   qualifyingBegin: curUser.qualifying_begin,
-          //   qualifyingEnd: curUser.qualifying_end,
-          //   contractBegin2: curUser.contract_begin2,
-          //   qualifyingMonths2: curUser.qualifying_months2,
-          //   qualifyingBegin2: curUser.qualifying_begin2,
-          //   qualifyingEnd2: curUser.qualifying_end2,
-          //   projectName: curUser.project_name,
-          //   userJob: curUser.user_job,
-          //   jobContent: curUser.job_content,
-          //   jobPosition: curUser.job_position,
-          //   salaryWhichNo: curUser.salary_which_no,
-          //   workHoursOneDay: curUser.work_hours_one_day,
-          //   workDaysOneWeek: curUser.work_days_one_week,
-          //   salaryOneDay: curUser.salary_one_day,
-          //   qualityType: curUser.quality_type,
-          //   userBankAccount: curUser.user_bank_account,
-          //   userBirthday: curUser.user_birthday
-          // };
-          let url = yield self.makeContract(curUser);
-          alert(url);
-          self.downloadFile(url);
-        }
-      });
+      for (let i = 0; i < self.checkBoxData.length; i++) {
+        let curUser = self.checkBoxData[i];
+        let params = curUser;
+        self.makeDocx(params).then(res => {
+          if (res.data.code == 600) {
+            let filePath = res.data.data;
+            self.downloadFile(filePath);
+          } else {
+            alert("照片不存在!");
+          }
+        });
+      }
     },
 
     downloadFile(url) {
@@ -438,25 +632,25 @@ export default {
       }, 10 * 1000);
     },
 
-    makeContract(user) {
-      let self = this;
-      let params = user;
+    // makeContract(user) {
+    //   let self = this;
+    //   let params = user;
 
-      return new Promise(function(resolve, reject) {
-        self.makeDocx(params).then(res => {
-          // console.log(JSON.stringify(res));
+    //   return new Promise(function(resolve, reject) {
+    //     self.makeDocx(params).then(res => {
+    //       // console.log(JSON.stringify(res));
 
-          if (res.data.code == 600) {
-            let filePath = res.data.data;
-            resolve(filePath);
-          } else {
-            reject(res.data.msg);
-          }
-        });
-      });
+    //       if (res.data.code == 600) {
+    //         let filePath = res.data.data;
+    //         resolve(res.data);
+    //       } else {
+    //         reject(res.data);
+    //       }
+    //     });
+    //   });
 
-      console.log("aaaaaaaaaaaaaaaa");
-    },
+    //   console.log("aaaaaaaaaaaaaaaa");
+    // },
 
     showImageBase64(strBase64) {
       let zp = "data:image/jpeg;base64," + strBase64;
@@ -554,7 +748,7 @@ export default {
     StartVideo() {
       this.AddDevice();
       //打开列表所选摄像头
-      // this.ChangeDevice(0);
+      this.ChangeDevice(0);
       // this.AddAudioDev(AudioList);
     },
 
@@ -567,6 +761,7 @@ export default {
 
     // <!--更新设备列表-->
     AddDevice() {
+      // alert("aaaaaaaaaa");
       try {
         this.clean(this.arrDevice);
         var mainDevCount = 0;
@@ -582,7 +777,9 @@ export default {
           mainDevCount++;
           //}
         }
+        // alert(JSON.stringify(this.arrDevice));
         if (mainDevCount > 0) {
+          // alert("bbbbbbbbbbbbbb");
           mainIndex = 0;
           this.device = this.arrDevice[0].name;
           // DeviceList.options[0].selected = true;
@@ -595,6 +792,7 @@ export default {
     // <!--切换摄像头-->
     ChangeDevice(index) {
       console.log("切换设备,index:" + index);
+
       try {
         let ret = CamSDKOCX.CloseDev();
         console.log("关闭设备,结果:" + ret);
@@ -651,7 +849,7 @@ export default {
     }
 
     if (!flag) {
-      let list = document.getElementsByClassName("all-page-right");
+      let list = document.getElementsByClassName("ocx");
       let div = list[0];
       domAppend(div, "CamSDKOCX");
     }
@@ -695,10 +893,10 @@ export default {
   margin-top: 10px;
   margin-left: 1300px;
 }
-
+// 身份证
 .img-avatar {
   width: 420px;
-  height: 300px;
+  height: 260px;
   position: absolute;
   background-color: yellowgreen;
 }
@@ -749,7 +947,7 @@ export default {
 }
 .all-page-right {
   float: right;
-  width: 30%;
+  width: 35%;
   // background-color:blueviolet;
   padding-left: 10px;
 }

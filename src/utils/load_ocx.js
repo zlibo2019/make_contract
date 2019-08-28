@@ -22,9 +22,9 @@ const domAppend = function (body, id) {
     let codebase = setAttr("codebase", "/CamSDKOCX.ocx") //如果电脑中没有ocx此属性会在IE浏览器下自动提示下载
     obj.setAttributeNode(codebase);
 
-    let objWidth = setAttr("width", 500);
+    let objWidth = setAttr("width", 580);
     obj.setAttributeNode(objWidth);
-    let objHeight = setAttr("height", 500);
+    let objHeight = setAttr("height", 580);
     obj.setAttributeNode(objHeight);
     let objhspace = setAttr("hspace", 100);
     obj.setAttributeNode(objhspace);
