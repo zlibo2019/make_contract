@@ -4,11 +4,7 @@ import Base from './base';
 const Login = {
     //  登录接口
     login(params) {
-        return commonAxios("post",`${Base.oldUrl}account/loginCheck`, params);
-    },
-    //  获取字典信息
-    getDictionary(params) {
-        return commonAxios("get",`${Base.oldUrl}code/get_all_dic`, params)
+        return commonAxios("post",`${Base.server}/account/loginCheck`, params);
     },
 }
-export default Login
+export default Login;
