@@ -90,10 +90,9 @@ axios.interceptors.response.use(res => {
 
 //通用axios
 export const commonAxios = (type, url, params) => {
-    console.log('type.......'+type);
+    console.log('type.......' + type);
     if (type.toUpperCase() == 'GET' || type.toUpperCase() == 'DELETE') {
         if (process.env.NODE_ENV == 'mock') {
-            console.log('11111111111111111111111');
             return axios({
                 method: type,
                 url: `${url}`,
@@ -103,7 +102,6 @@ export const commonAxios = (type, url, params) => {
                 }
             })
         } else {
-            console.log('22222222222222222');
             return axios({
                 method: type,
                 url: `${url}`,
@@ -115,7 +113,6 @@ export const commonAxios = (type, url, params) => {
         }
 
     } else {
-        console.log('333333333333333333333333333');
         return axios({
             method: type,
             url: `${url}`,
@@ -125,7 +122,19 @@ export const commonAxios = (type, url, params) => {
             }
         })
     }
-}
+};
+
+
+
+
+export const fileAxios = (url) => {
+    return axios({
+        method: "get",
+        url: `${url}`,
+        responseType: arraybuffer
+    })
+};
+
 //以get参数的形式走post请求
 export const geturlPost = (url, params) => {
     return axios({
@@ -136,7 +145,7 @@ export const geturlPost = (url, params) => {
             'Authorization': `Token ${localStorage.getItem('token')}`
         }
     })
-}
+};
 
 //以post形式走put请求
 export const putAxios = (url, params) => {
@@ -148,7 +157,7 @@ export const putAxios = (url, params) => {
             'Authorization': `Token ${localStorage.getItem('token')}`
         }
     })
-}
+};
 
 //以post形式走delete请求
 export const deleteAxios = (url, params) => {
@@ -160,5 +169,5 @@ export const deleteAxios = (url, params) => {
             'Authorization': `Token ${localStorage.getItem('token')}`
         }
     })
-}
+};
 

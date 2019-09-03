@@ -11,7 +11,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/httpApi': {
-        target: 'http://10.1.0.16:7001',//赵李波
+        target: 'http://10.18.0.2:7001',//赵李波
         // target: 'http://10.1.0.27:7000',//刘悦
         // target: 'http://10.0.0.95:7000',//臧云吉
 
