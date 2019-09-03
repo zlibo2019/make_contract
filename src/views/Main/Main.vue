@@ -17,8 +17,22 @@
         <el-main style="padding-top: 5px; padding-right: 20px;">
           <div class="page-top">
             <div>
-              <el-button @click="downContractListTemplateClick()" style="width:128px">下载合同导入模板</el-button>
-              <el-button @click="downContractTemplateClick()" style="width:128px">下载合同模板</el-button>
+              <el-button
+                @click="downContractListTemplateClick()"
+                slot="trigger"
+                size="small"
+                type="info"
+                plain
+                style="width:128px"
+              >下载合同导入模板</el-button>
+
+              <el-button
+                @click="downContractTemplateClick()"
+                style="width:128px"
+                size="small"
+                type="info"
+                plain
+              >下载合同模板</el-button>
             </div>
 
             <div style="padding-top: 20px;">
