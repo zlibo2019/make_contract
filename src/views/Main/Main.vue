@@ -60,21 +60,15 @@
               >下载合同模板</el-button>
             </div>
 
-            <div style="padding-top: 20px;">
+            <div>
               <el-upload
-                class="upload-demo"
-                drag
-                action="https://jsonplaceholder.typicode.com/posts1/"
-                multiple
+                :action="uploadContractListTemplate()"
+                :data="uploadData"
+                accept=".xlsx"
+                :limit="1"
               >
-                <i class="el-icon-upload"></i>
-                <div class="el-upload__text">
-                  将文件拖到此处，或
-                  <em>点击上传</em>
-                </div>
-                <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+                <el-button size="small" type="primary">上传合同列表模板</el-button>
               </el-upload>
-              <el-divider></el-divider>
             </div>
 
             <div style="padding-top: 20px;">
@@ -317,12 +311,14 @@ import {
   fileAxios
 } from "../../utils/axios.js";
 import Base from "@/api/base";
+import { Promise, resolve, reject } from "q";
 
 var CO = require("co");
 export default {
   name: "login",
   data() {
     return {
+      uploadContractListTemplateData: { aa: "11" },
       urls: [],
       dialogVisible: false,
       inputAccount: "",
@@ -337,10 +333,61 @@ export default {
       device: "",
       arrDevice: [],
       tableData: [],
-      fileList: []
+      fileList: [],
+      uploadData: {
+        regId: "1",
+        base64_1: ""
+      }
     };
   },
   methods: {
+    uploadContractListTemplate() {
+      return `${Base.server}/saveContractListTemplate`;
+    },
+    beforeUploadContractListTemplateData(file) {
+      //  let self = this;
+      //   // this.fileName = options.file.name;
+      //   // this.id = options.data.id;
+      //   let regId = localStorage.getItem("regId"); // 注册公司id
+      //   this.getBase64(options.file).then(res => {
+      //     let fileData = res.split(",")[1];
+      //     let params = { regId: regId, base64_1: fileData };
+      //     self
+      //       .saveContractListTemplate(params)
+      //       .then(res => {
+      //         this.$message({
+      //           type: "success",
+      //           message: "上传成功!"
+      //         });
+      //         // this.templetManage();
+      //       })
+      //       .catch(error => {
+      //         console.log(error);
+      //       });
+      //   });
+      //   let fd = new FormData()
+      // fd.append('base64_1', file);
+      // fd.append('regId',regId);
+      // // fd.append('id',id)//其他参数
+      // let url = `${Base.server}/saveContractListTemplate`;
+      // return commonAxios('post',url,fd);
+      // let self = this;
+      // // this.fileName = options.file.name;
+      // // this.id = options.data.id;
+      // let regId = localStorage.getItem("regId"); // 注册公司id
+      // return new Promise((resolve, reject) => {
+      //   this.getBase64(file).then(res => {
+      //     if (res) {
+      //       let fileData = res.split(",")[1];
+      //       let params = { regId: regId, base64_1: fileData };
+      //       self.uploadContractListTemplateData = params;
+      //       resolve();
+      //     } else {
+      //       reject();
+      //     }
+      //   });
+      // });
+    },
     // 修改table tr行的背景色
     tableRowStyle({ row, rowIndex }) {
       return "background-color: lightblue;font-weight: 450";
