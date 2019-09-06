@@ -1,5 +1,21 @@
 <template>
   <div>
+    <div>
+      <el-dialog
+        title="提示"
+        :visible.sync="dialogVisible"
+        width="30%"
+        :before-close="handleClose"
+        top="10px"
+      >
+        <el-image v-for="url in urls" :key="url" :src="url" lazy></el-image>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
+    </div>
+
     <div class="all-page-left">
       <el-container>
         <el-header style="text-align: left; font-size: 12px; height:20px">
@@ -11,6 +27,14 @@
               :disabled="true"
               size="mini"
             ></el-input>
+            <el-button
+              @click="exitClick"
+              slot="trigger"
+              size="mini"
+              type="info"
+              plain
+              style="width:80px"
+            >退出</el-button>
           </div>
         </el-header>
 
@@ -28,11 +52,29 @@
 
               <el-button
                 @click="downContractTemplateClick()"
+                slot="trigger"
                 style="width:128px"
                 size="small"
                 type="info"
                 plain
               >下载合同模板</el-button>
+            </div>
+
+            <div style="padding-top: 20px;">
+              <el-upload
+                class="upload-demo"
+                drag
+                action="https://jsonplaceholder.typicode.com/posts1/"
+                multiple
+              >
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">
+                  将文件拖到此处，或
+                  <em>点击上传</em>
+                </div>
+                <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+              </el-upload>
+              <el-divider></el-divider>
             </div>
 
             <div style="padding-top: 20px;">
@@ -60,6 +102,7 @@
                 >上传合同导入模板</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传xlsx文件</div>
               </el-upload>
+              <el-divider></el-divider>
             </div>
 
             <div style="padding-top: 20px;">
@@ -87,6 +130,7 @@
                 >上传合同模板</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传docx文件</div>
               </el-upload>
+              <el-divider></el-divider>
             </div>
 
             <div style="padding-top: 20px;">
@@ -114,13 +158,51 @@
                 >批量导入合同</el-button>
                 <div slot="tip" class="el-upload__tip">只能上传xlsx文件</div>
               </el-upload>
+              <el-divider></el-divider>
             </div>
           </div>
 
           <div class="page-top">
-            <el-button type="button" style="width:120px" @click="saveClick">保存照片</el-button>
-            <el-button type="button" style="width:120px" @click="queryContractListClick">查询</el-button>
-            <el-button type="button" style="width:120px" @click="bulkMakeContract()">生成合同</el-button>
+            <el-button
+              slot="trigger"
+              size="small"
+              type="info"
+              plain
+              style="width:80px"
+              @click="saveClick"
+            >保存照片</el-button>
+            <el-button
+              slot="trigger"
+              size="small"
+              type="info"
+              plain
+              style="width:80px"
+              @click="queryContractListClick"
+            >查询</el-button>
+            <el-button
+              slot="trigger"
+              size="small"
+              type="info"
+              plain
+              style="width:80px"
+              @click="bulkMakeContract()"
+            >生成合同</el-button>
+            <el-button
+              slot="trigger"
+              size="small"
+              type="info"
+              plain
+              style="width:80px"
+              @click="showSfzClick()"
+            >查看身份证</el-button>
+            <el-button
+              slot="trigger"
+              size="small"
+              type="info"
+              plain
+              style="width:80px"
+              @click="showContractClick()"
+            >查看合同</el-button>
           </div>
 
           <div class="page-top">
@@ -130,11 +212,21 @@
               border
               :data="tableData"
               style="width: 100%"
+              :row-style="tableRowStyle"
+              :header-cell-style="tableHeaderColor"
             >
               <el-table-column type="selection" width="30"></el-table-column>
-              <el-table-column prop="contractNo" label="合同编号" width="80"></el-table-column>
+              <el-table-column
+                type="index"
+                label="序号"
+                header-align="center"
+                align="center"
+                width="55"
+              ></el-table-column>
+
+              <el-table-column prop="contractNo" label="合同编号" width="85"></el-table-column>
               <el-table-column prop="userId" label="身份证" width="150"></el-table-column>
-              <el-table-column prop="userName" label="姓名" width="80"></el-table-column>
+              <el-table-column prop="userName" label="姓名" width="70"></el-table-column>
               <el-table-column prop="userAddress" label="地址"></el-table-column>
             </el-table>
           </div>
@@ -214,6 +306,8 @@
 </template>
 
 
+
+
 <script>
 import { domAppend } from "@/utils/load_ocx.js"; //我的动态创建元素的方法放于的文件夹
 import {
@@ -229,6 +323,8 @@ export default {
   name: "login",
   data() {
     return {
+      urls: [],
+      dialogVisible: false,
       inputAccount: "",
       upTemplate: { name: "赵李波" },
       radio: 1,
@@ -245,6 +341,71 @@ export default {
     };
   },
   methods: {
+    // 修改table tr行的背景色
+    tableRowStyle({ row, rowIndex }) {
+      return "background-color: lightblue;font-weight: 450";
+    },
+    // 修改table header的背景色
+    tableHeaderColor({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "background-color: darkgray;color: #fff;font-weight: 500;";
+      }
+    },
+    exitClick() {
+      localStorage.clear;
+      this.$router.push("/");
+    },
+    showSfzClick() {
+      this.urls.length = 0;
+      this.showPhoto(1);
+    },
+    showContractClick() {
+      this.urls.length = 0;
+      this.showPhoto(2);
+    },
+    listContractFileName(regId, userId) {
+      let params = { regId: regId, userId: userId };
+      return commonAxios(
+        "post",
+        `${Base.server}/contract/listContractFileName`,
+        params
+      );
+    },
+    showPhoto(type) {
+      let self = this;
+      if (this.checkBoxData.length === 0) {
+        alert("请选择人员");
+      }
+      // let regId = tableData[0].regId;
+      let userId = this.checkBoxData[0].userId;
+      if (type === 1) {
+        let url1 = `${Base.server}/public/photo/${userId}/sfz1.jpg`;
+        let url2 = `${Base.server}/public/photo/${userId}/sfz2.jpg`;
+        this.urls.push(url1);
+        this.urls.push(url2);
+        this.dialogVisible = true;
+      } else {
+        let userId = this.checkBoxData[0].userId;
+        let regId = this.checkBoxData[0].regId;
+        this.listContractFileName(regId, userId).then(res => {
+          if (res.data.code === 600) {
+            let arrName = res.data.data;
+            for (let i = 0; i < arrName.length; i++) {
+              let curUrl = `${Base.server}/public/photo/${userId}/${arrName[i]}`;
+              self.urls.push(curUrl);
+            }
+            this.dialogVisible = true;
+          }
+        });
+      }
+    },
+    handleClose(done) {
+      // this.$confirm("确认关闭？")
+      //   .then(_ => {
+      //     done();
+      //   })
+      //   .catch(_ => {});
+    },
     beforeFileUploadUpContractTemplate(file) {
       let extName = file.name.split(".")[1];
       if (extName !== "docx") {
@@ -437,24 +598,20 @@ export default {
     downContractListTemplateClick() {
       let self = this;
       let regId = localStorage.getItem("regId");
-      // let fileName = "template_contract_list.xlsx";
-      // let params = {
-      //   regId: regId,
-      //   fileName: fileName,
-      //   server: Base.server
-      // };
       let url = `${Base.server}/public/docx/template/${regId}/template_contract_list.xlsx`;
       this.downFile(url)
         .then(res => {
-          let blob = new Blob([res.data], { type: "application/vnd.ms-excel" });
+          let blob = new Blob([res.data], {
+            type:
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
+          }); //application/vnd.openxmlformats-officedocument.spreadsheetml.sheet这里表示xlsx类型
           let url = window.URL.createObjectURL(blob);
           let fileName = "template_contract_list.xlsx";
           self.downloadFile(url, fileName);
         })
         .catch(error => {
-          alert(error);
-          // let url = `${Base.server}/public/docx/template/template_contract_list.xlsx`;
-          // self.downloadFile(url,"");
+          let url = `${Base.server}/public/docx/template/template_contract_list.xlsx`;
+          self.downloadFile(url, "");
         });
     },
 
@@ -470,10 +627,13 @@ export default {
       let url = `${Base.server}/public/docx/template/${regId}/template_contract.docx`;
       this.downFile(url)
         .then(res => {
-          let blob = new Blob([res.data], { type: "application/x-docx" });
-          let href = window.URL.createObjectURL(blob);
-          self.downloadFile(href, fileName);
-          // this.templetManage();
+          let blob = new Blob([res.data], {
+            type:
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
+          }); //application/vnd.openxmlformats-officedocument.spreadsheetml.sheet这里表示xlsx类型
+          let url = window.URL.createObjectURL(blob);
+          let fileName = "template_contract.docx";
+          self.downloadFile(url, fileName);
         })
         .catch(error => {
           let url = `${Base.server}/public/docx/template/template_contract.docx`;
@@ -638,6 +798,10 @@ export default {
       let self = this;
       if (self.checkBoxData.length === 0) {
         alert("请选择人员!");
+        return;
+      }
+      if (self.checkBoxData.length > 1) {
+        alert("只能选择一个人");
         return;
       }
 
@@ -894,6 +1058,11 @@ export default {
     }
   },
   created() {
+    let account = localStorage.getItem("userName");
+    if (undefined === account || null === account) {
+      this.$router.push("/");
+    }
+
     this.inputAccount = localStorage.getItem("regId");
   },
   mounted() {
@@ -927,7 +1096,7 @@ export default {
 }
 .page-left {
   width: 500px;
-  background-color: green;
+  background-color: darkgray;
   position: absolute;
 }
 .page-main {

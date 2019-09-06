@@ -131,7 +131,7 @@ export const fileAxios = (url) => {
     return axios({
         method: "get",
         url: `${url}`,
-        responseType: arraybuffer
+        responseType: 'blob',
     })
 };
 

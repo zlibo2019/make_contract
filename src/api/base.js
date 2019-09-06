@@ -10,7 +10,7 @@ const Base = {
   //   bd: 'http://weds.xknow.net/',
   // bd: 'http://wxk12test.xknow.net/node/',
   //   bd: '/nodeApi/',
-  server: 'http://10.18.0.2:7001',
+  server: 'http://10.18.0.2:7007',
   //   bd: ''
 }
 
