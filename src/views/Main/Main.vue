@@ -1,24 +1,101 @@
 <template>
   <div>
     <div>
+      <el-dialog title="提示" :visible.sync="dialogShowPhotoVisible" width="30%" top="10px">
+        <el-image v-for="url in urls" :key="url" :src="url" fit="fill"></el-image>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogShowPhotoVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogShowPhotoVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
       <el-dialog
         title="提示"
-        :visible.sync="dialogVisible"
+        :visible.sync="dialogUploadContractListTemplateVisible"
         width="30%"
-        :before-close="handleClose"
         top="10px"
       >
-        <el-image v-for="url in urls" :key="url" :src="url" lazy></el-image>
+        <span>
+          <el-upload
+            class="inline-block"
+            :action="uploadContractListTemplate()"
+            :data="uploadData"
+            accept=".xlsx"
+            :limit="1"
+          >
+            <el-button type="success">点击上传</el-button>
+          </el-upload>
+        </span>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+          <el-button @click="dialogUploadContractListTemplateVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogUploadContractListTemplateVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
+
+      <el-dialog
+        title="提示"
+        :visible.sync="dialogUploadContractTemplateVisible"
+        width="30%"
+        top="10px"
+      >
+        <el-upload
+          class="inline-block"
+          :action="uploadContractTemplate()"
+          :data="uploadData"
+          accept=".docx"
+          :limit="1"
+        >
+          <el-button type="success">点击上传</el-button>
+        </el-upload>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogUploadContractTemplateVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogUploadContractTemplateVisible = false">确 定</el-button>
         </span>
       </el-dialog>
     </div>
 
+    <div class="all-page-left" style="width: 5%; padding-left: 10px;">
+      <el-menu
+        default-active="1-4-1"
+        class="el-menu-vertical-demo"
+        @select="handleSelect"
+        @open="handleOpen"
+        @close="handleClose"
+        :collapse="true"
+      >
+        <el-submenu index="1">
+          <template slot="title">
+            <i class="el-icon-setting"></i>
+          </template>
+          <el-menu-item-group>
+            <span slot="title">个性化设置</span>
+
+            <el-submenu index="1-1">
+              <span slot="title">合同列表导入模板</span>
+              <el-menu-item index="1-1-1">当前模板下载</el-menu-item>
+              <el-menu-item index="1-1-2">新模板上传</el-menu-item>
+            </el-submenu>
+
+            <el-submenu index="1-2">
+              <span slot="title">合同模板</span>
+              <el-menu-item index="1-2-1">当前模板下载</el-menu-item>
+              <el-menu-item index="1-2-2">新模板上传</el-menu-item>
+            </el-submenu>
+          </el-menu-item-group>
+        </el-submenu>
+        <el-menu-item index="2">
+          <i class="el-icon-menu"></i>
+          <span slot="title">功能</span>
+        </el-menu-item>
+        <el-menu-item index="3" disabled>
+          <i class="el-icon-document"></i>
+          <span slot="title">筛选</span>
+        </el-menu-item>
+      </el-menu>
+    </div>
+
     <div class="all-page-left">
       <el-container>
-        <el-header style="text-align: left; font-size: 12px; height:20px">
+        <el-header style="text-align: left; font-size: 12px; height:20px; margin-top:10px">
           <div>
             <span>管理员</span>
             <el-input
@@ -39,164 +116,50 @@
         </el-header>
 
         <el-main style="padding-top: 5px; padding-right: 20px;">
-          <div class="page-top">
-            <div>
-              <el-button
-                @click="downContractListTemplateClick()"
-                slot="trigger"
-                size="small"
-                type="info"
-                plain
-                style="width:128px"
-              >下载合同导入模板</el-button>
-
-              <el-button
-                @click="downContractTemplateClick()"
-                slot="trigger"
-                style="width:128px"
-                size="small"
-                type="info"
-                plain
-              >下载合同模板</el-button>
-            </div>
-
-            <div>
-              <el-upload
-                :action="uploadContractListTemplate()"
-                :data="uploadData"
-                accept=".xlsx"
-                :limit="1"
-              >
-                <el-button size="small" type="primary">上传合同列表模板</el-button>
-              </el-upload>
-            </div>
-
-            <div style="padding-top: 20px;">
-              <el-upload
-                class="upload-demo"
-                ref="uploadUpContractListTemplate"
-                :http-request="httpRequestUpContractListTemplate"
-                :before-upload="beforeFileUploadUpContractList"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :before-remove="beforeRemove"
-                multiple
-                :limit="1"
-                :on-exceed="handleExceed"
-                :file-list="fileList"
-                :auto-upload="false"
-              >
-                <!-- <el-button size="small" type="primary">点击上传</el-button> -->
-                <el-button slot="trigger" size="small" type="primary">选择合同导入模板</el-button>
-                <el-button
-                  style="margin-left: 10px;"
-                  size="small"
-                  type="success"
-                  @click="submitUploadUpContractListTemplate"
-                >上传合同导入模板</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传xlsx文件</div>
-              </el-upload>
-              <el-divider></el-divider>
-            </div>
-
-            <div style="padding-top: 20px;">
-              <el-upload
-                class="upload-demo"
-                ref="uploadUpContractTemplate"
-                :http-request="httpRequestUpContractTemplate"
-                :before-upload="beforeFileUploadUpContractTemplate"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :before-remove="beforeRemove"
-                multiple
-                :limit="1"
-                :on-exceed="handleExceed"
-                :file-list="fileList"
-                :auto-upload="false"
-              >
-                <!-- <el-button size="small" type="primary">点击上传</el-button> -->
-                <el-button slot="trigger" size="small" type="primary" style="width:128px">选择合同模板</el-button>
-                <el-button
-                  style="margin-left: 10px;width:128px"
-                  size="small"
-                  type="success"
-                  @click="submitUploadUpContractTemplate"
-                >上传合同模板</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传docx文件</div>
-              </el-upload>
-              <el-divider></el-divider>
-            </div>
-
-            <div style="padding-top: 20px;">
-              <el-upload
-                class="upload-demo"
-                ref="uploadUpContractList"
-                :http-request="httpRequestUpContractList"
-                :before-upload="beforeFileUploadUpContractList"
-                :on-preview="handlePreview"
-                :on-remove="handleRemove"
-                :before-remove="beforeRemove"
-                multiple
-                :limit="1"
-                :on-exceed="handleExceed"
-                :file-list="fileList"
-                :auto-upload="false"
-              >
-                <!-- <el-button size="small" type="primary">点击上传</el-button> -->
-                <el-button slot="trigger" size="small" type="primary">选择合同导入文件</el-button>
-                <el-button
-                  style="margin-left: 10px; width:128px"
-                  size="small"
-                  type="success"
-                  @click="submitUploadUpContractList"
-                >批量导入合同</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传xlsx文件</div>
-              </el-upload>
-              <el-divider></el-divider>
-            </div>
-          </div>
-
-          <div class="page-top">
+          <div>
+            <el-input
+              v-model="inputCondition"
+              style="width:380px;height:31px;padding-top: 19px;"
+              size="mini"
+            ></el-input>
             <el-button
               slot="trigger"
-              size="small"
-              type="info"
-              plain
-              style="width:80px"
-              @click="saveClick"
-            >保存照片</el-button>
-            <el-button
-              slot="trigger"
-              size="small"
-              type="info"
-              plain
-              style="width:80px"
+              type="success"
+              size="mini"
+              style="margin-top:20px;"
               @click="queryContractListClick"
             >查询</el-button>
+          </div>
+          <div class="page-top">
             <el-button
+              class="inline-block2"
               slot="trigger"
-              size="small"
-              type="info"
-              plain
-              style="width:80px"
-              @click="bulkMakeContract()"
-            >生成合同</el-button>
+              type="primary"
+              style="width: 115px"
+              @click="downContractListTemplateClick"
+            >档案模板下载</el-button>
+            <el-upload
+              class="inline-block2"
+              :action="uploadContractList()"
+              :data="uploadData"
+              accept=".xlsx"
+              :limit="1"
+            >
+              <el-button type="primary">档案合同上传</el-button>
+            </el-upload>
+
             <el-button
+              class="inline-block2"
               slot="trigger"
-              size="small"
-              type="info"
-              plain
-              style="width:80px"
-              @click="showSfzClick()"
-            >查看身份证</el-button>
+              type="primary"
+              @click="bulkMakeContractClick()"
+            >导出合同文本</el-button>
             <el-button
+              class="inline-block2"
               slot="trigger"
-              size="small"
-              type="info"
-              plain
-              style="width:80px"
-              @click="showContractClick()"
-            >查看合同</el-button>
+              type="primary"
+              @click="bulkGetContractPhotoClick()"
+            >导出合同照片</el-button>
           </div>
 
           <div class="page-top">
@@ -218,10 +181,15 @@
                 width="55"
               ></el-table-column>
 
-              <el-table-column prop="contractNo" label="合同编号" width="85"></el-table-column>
-              <el-table-column prop="userId" label="身份证" width="150"></el-table-column>
-              <el-table-column prop="userName" label="姓名" width="70"></el-table-column>
-              <el-table-column prop="userAddress" label="地址"></el-table-column>
+              <!-- <el-table-column prop="contractNo" label="合同编号" width="85"></el-table-column> -->
+              <el-table-column prop="userId" label="身份证" width="180"></el-table-column>
+              <el-table-column prop="userName" label="姓名" width="100"></el-table-column>
+              <el-table-column label="查看图片">
+                <template slot-scope="scope">
+                  <el-button @click="showSfzClick(scope.row)" type="text" size="small">身份证</el-button>
+                  <el-button @click="showContractClick(scope.row)" type="text" size="small">合同</el-button>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
         </el-main>
@@ -233,7 +201,7 @@
         <el-tabs v-model="activeName" @tab-click="handleClick" class="all-page-middle">
           <el-tab-pane name="first" label="拍身份证">
             <div class="bottom-left">
-              <img :src="avatar1" class="img-avatar" />
+              <img :src="avatar1" class="img-avatar" fit="none" />
               <div>
                 <input
                   style="margin-top: 280px"
@@ -246,7 +214,7 @@
                   class="uppic"
                 />
               </div>
-              <img :src="avatar2" class="img-avatar" style="margin-top: 40px;" />
+              <img :src="avatar2" class="img-avatar" style="margin-top: 40px;" fit="scale-down" />
               <div>
                 <input
                   type="file"
@@ -257,6 +225,13 @@
                   ref="avatarInput"
                   class="uppic"
                 />
+              </div>
+              <div>
+                <el-button
+                  type="success"
+                  style="margin-top:20px;margin-left:150px;"
+                  @click="saveClick"
+                >保存照片</el-button>
               </div>
             </div>
           </el-tab-pane>
@@ -274,6 +249,13 @@
                   class="uppic"
                   style="margin-top:680px"
                 />
+              </div>
+              <div>
+                <el-button
+                  type="success"
+                  style="margin-top:20px;margin-left:150px;"
+                  @click="saveClick"
+                >保存照片</el-button>
               </div>
             </div>
           </el-tab-pane>
@@ -318,10 +300,14 @@ export default {
   name: "login",
   data() {
     return {
+      dialogType: 1, // 1身份证2合同照片
       uploadContractListTemplateData: { aa: "11" },
       urls: [],
-      dialogVisible: false,
+      dialogShowPhotoVisible: false,
+      dialogUploadContractListTemplateVisible: false,
+      dialogUploadContractTemplateVisible: false,
       inputAccount: "",
+      inputCondition: "",
       upTemplate: { name: "赵李波" },
       radio: 1,
       activeName: "first",
@@ -335,14 +321,42 @@ export default {
       tableData: [],
       fileList: [],
       uploadData: {
-        regId: "1",
-        base64_1: ""
+        regId: "1"
       }
     };
   },
   methods: {
+    handleSelect(key, keyPath) {
+      if (key === "1-1-1") {
+        this.downContractListTemplateClick();
+      } else if (key === "1-2-1") {
+        this.downContractTemplateClick();
+      } else if (key === "1-1-2") {
+        this.dialogUploadContractListTemplateVisible = true;
+      } else if (key === "1-2-2") {
+        this.dialogUploadContractTemplateVisible = true;
+      }
+    },
+    handleOpen(key, keyPath) {},
+    handleClose(key, keyPath) {},
+    downClick() {
+      let userId = this.checkBoxData[0].userId;
+      if (this.dialogType === 1) {
+        let url1 = `${Base.server}/public/photo/${userId}/sfz1.jpg`;
+        let url2 = `${Base.server}/public/photo/${userId}/sfz2.jpg`;
+        this.downloadFile(url1, "sfz1.jpg");
+        // this.downloadFile(url2, "sfz2.jpg");
+      } else {
+      }
+    },
     uploadContractListTemplate() {
       return `${Base.server}/saveContractListTemplate`;
+    },
+    uploadContractTemplate() {
+      return `${Base.server}/saveContractTemplate`;
+    },
+    uploadContractList() {
+      return `${Base.server}/saveContractList`;
     },
     beforeUploadContractListTemplateData(file) {
       //  let self = this;
@@ -402,13 +416,16 @@ export default {
       localStorage.clear;
       this.$router.push("/");
     },
-    showSfzClick() {
+    showSfzClick(row) {
+      let userId = row.userId;
       this.urls.length = 0;
-      this.showPhoto(1);
+      this.showPhoto(userId, null, 1);
     },
-    showContractClick() {
+    showContractClick(row) {
+      let userId = row.userId;
+      let regId = row.regId;
       this.urls.length = 0;
-      this.showPhoto(2);
+      this.showPhoto(userId, regId, 2);
     },
     listContractFileName(regId, userId) {
       let params = { regId: regId, userId: userId };
@@ -418,22 +435,21 @@ export default {
         params
       );
     },
-    showPhoto(type) {
+    showPhoto(userId, regId, type) {
       let self = this;
-      if (this.checkBoxData.length === 0) {
-        alert("请选择人员");
-      }
       // let regId = tableData[0].regId;
-      let userId = this.checkBoxData[0].userId;
+      // let userId = this.checkBoxData[0].userId;
       if (type === 1) {
         let url1 = `${Base.server}/public/photo/${userId}/sfz1.jpg`;
         let url2 = `${Base.server}/public/photo/${userId}/sfz2.jpg`;
         this.urls.push(url1);
         this.urls.push(url2);
-        this.dialogVisible = true;
+        this.dialogType = 1;
+        this.dialogShowPhotoVisible = true;
       } else {
-        let userId = this.checkBoxData[0].userId;
-        let regId = this.checkBoxData[0].regId;
+        // let userId = this.checkBoxData[0].userId;
+        // let regId = this.checkBoxData[0].regId;
+        this.dialogType = 2;
         this.listContractFileName(regId, userId).then(res => {
           if (res.data.code === 600) {
             let arrName = res.data.data;
@@ -441,7 +457,7 @@ export default {
               let curUrl = `${Base.server}/public/photo/${userId}/${arrName[i]}`;
               self.urls.push(curUrl);
             }
-            this.dialogVisible = true;
+            this.dialogShowPhotoVisible = true;
           }
         });
       }
@@ -502,7 +518,7 @@ export default {
       let regId = localStorage.getItem("regId"); // 注册公司id
       this.getBase64(options.file).then(res => {
         let fileData = res.split(",")[1];
-        let params = { regId: regId, base64_1: fileData };
+        let params = { regId: regId };
         self
           .saveContractTemplate(params)
           .then(res => {
@@ -658,7 +674,7 @@ export default {
         })
         .catch(error => {
           let url = `${Base.server}/public/docx/template/template_contract_list.xlsx`;
-          self.downloadFile(url, "");
+          self.downloadFile(url, fileName);
         });
     },
 
@@ -726,8 +742,8 @@ export default {
       };
     },
 
-    makeContract(params) {
-      return commonAxios("post", `${Base.server}/makeContract`, params);
+    bulkMakeContract(params) {
+      return commonAxios("post", `${Base.server}/bulkMakeContract`, params);
     },
     saveContractList(params) {
       return commonAxios("post", `${Base.server}/saveContractList`, params);
@@ -831,7 +847,8 @@ export default {
     queryContractListClick() {
       let self = this;
       let regId = localStorage.getItem("regId");
-      let params = { regId: regId };
+      let fuzzyCondition = this.inputCondition;  // 模糊查询
+      let params = { regId: regId, fuzzyCondition: fuzzyCondition };
       this.queryContractList(params).then(res => {
         console.log(JSON.stringify(res));
         if (res.data.code == 600) {
@@ -856,7 +873,7 @@ export default {
       if (this.activeName === "first") {
         base64_1 = this.avatar1;
         base64_2 = this.avatar2;
-        if (null === base64_1 || null === base64_2) {
+        if (base64_1.length < 100 || base64_2.length < 100) {
           alert("请拍照或导入照片");
           return;
         }
@@ -865,7 +882,7 @@ export default {
         base64_1 = null;
         base64_2 = null;
         base64_3 = this.avatar3;
-        if (null === base64_3) {
+        if (base64_3.length < 100) {
           alert("请拍照或导入照片");
           return;
         }
@@ -889,20 +906,24 @@ export default {
       });
     },
 
-    bulkMakeContract() {
+    bulkMakeContractClick() {
       let self = this;
-      for (let i = 0; i < self.checkBoxData.length; i++) {
-        let curContract = self.checkBoxData[i];
-        let params = curContract;
-        self.makeContract(params).then(res => {
-          if (res.data.code == 600) {
-            let filePath = res.data.data;
-            self.downloadFile(filePath, "");
-          } else {
-            alert("照片不存在!");
-          }
-        });
+      // for (let i = 0; i < self.checkBoxData.length; i++) {
+      // let curContract = self.checkBoxData[i];
+      // let params = curContract;
+      if (self.checkBoxData.length === 0) {
+        alert("请至少选择一行!");
+        return;
       }
+      self.bulkMakeContract(self.checkBoxData).then(res => {
+        if (res.data.code == 600) {
+          let filePath = res.data.data;
+          self.downloadFile(filePath, "");
+        } else {
+          alert("照片不存在!");
+        }
+      });
+      // }
     },
 
     // downloadFile(url) {
@@ -1207,7 +1228,7 @@ export default {
   float: left;
   width: 30%;
   // background-color: red;
-  padding-left: 10px;
+  padding-left: 1px;
 }
 .all-page-middle {
   float: left;
@@ -1235,6 +1256,19 @@ export default {
   width: 50%;
   // background-color:blue;
   padding: 20px;
+}
+
+.inline-block {
+  display: inline-block;
+  width: 118px;
+  margin-top: 10px;
+  margin-left: 6px;
+}
+.inline-block2 {
+  display: inline-block;
+  width: 120px;
+  // margin-top: 10px;
+  margin-left: 3px;
 }
 </style>
 

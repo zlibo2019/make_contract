@@ -11,7 +11,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/httpApi': {
-        target: 'http://10.18.0.2:7001',//赵李波
+        target: 'http://127.0.0.1:7001',//赵李波
         // target: 'http://10.1.0.27:7000',//刘悦
         // target: 'http://10.0.0.95:7000',//臧云吉
 
@@ -31,7 +31,7 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    host: '10.18.0.2', // can be overwritten by process.env.HOST    localhost
+    host: '0.0.0.0', // can be overwritten by process.env.HOST    localhost
     port: 15006, // can be overwritten by process.env.HOST, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
@@ -87,7 +87,7 @@ module.exports = {
     // Before setting to `true`, make sure to:
     // npm install --save-dev compression-webpack-plugin  //这个是最新版本
     // 偶尔会出现安装失败的问题，可以安装低版本  npm install --save-dev compression-webpack-plugin@1.1.11
-    productionGzip: true, //使用gzip压缩，默认是false
+    productionGzip: false, //使用gzip压缩，默认是false
     productionGzipExtensions: ['js', 'css'],
 
     // Run the build command with an extra argument to
