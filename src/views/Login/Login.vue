@@ -52,6 +52,7 @@ export default {
   },
   methods: {
     onSubmit(formName) {
+      let self = this;
       let params = {
         userName: this.form.username,
         password: this.form.password
@@ -59,19 +60,20 @@ export default {
       Login.login(params)
         .then(res => {
           // console.log("res:",res)
-          let regId = res.data.data.id;
+
           if (res.data.code == 600) {
+            let regId = res.data.data.id;
             localStorage.setItem("regId", regId); // 注册公司id
             localStorage.setItem("userName", params.userName); //用户
-            this.$router.push("/Main");
+            self.$router.push("/Main");
           } else {
-            this.dialogVisible = true;
+            self.dialogVisible = true;
             return false;
           }
         })
         .catch(err => {
           alert("出错了！！！！" + err);
-          this.dialogVisible = true;
+          self.dialogVisible = true;
           return false;
         });
     }

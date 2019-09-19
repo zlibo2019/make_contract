@@ -294,10 +294,11 @@ import {
 } from "../../utils/axios.js";
 import Base from "@/api/base";
 import { Promise, resolve, reject } from "q";
+import Login from "@/api/login";
 
 var CO = require("co");
 export default {
-  name: "login",
+  name: "Main",
   data() {
     return {
       dialogType: 1, // 1身份证2合同照片
@@ -847,7 +848,7 @@ export default {
     queryContractListClick() {
       let self = this;
       let regId = localStorage.getItem("regId");
-      let fuzzyCondition = this.inputCondition;  // 模糊查询
+      let fuzzyCondition = this.inputCondition; // 模糊查询
       let params = { regId: regId, fuzzyCondition: fuzzyCondition };
       this.queryContractList(params).then(res => {
         console.log(JSON.stringify(res));
@@ -888,6 +889,7 @@ export default {
         }
       }
       let params = {
+        regId:0,// this.checkBoxData[0].regId,
         userId: this.checkBoxData[0].userId,
         contractNo: this.checkBoxData[0].contractNo,
         base64_1: base64_1,
@@ -896,6 +898,9 @@ export default {
       };
       // alert(this.checkBoxData[0].ContractListId);
       console.log(JSON.stringify(this.tableData));
+
+// alert(JSON.stringify(params));
+
       this.savePhoto(params).then(res => {
         // console.log(JSON.stringify(res));
         if (res.data.code == 600) {
@@ -1124,6 +1129,31 @@ export default {
     UnInitCamOCX() {
       CamSDKOCX.UnInitCameraLib();
     }
+  },
+  beforeRouteEnter(to, from, next) {
+    let self = this;
+    next(vm => {
+      if (undefined === to.params.user || null === to.params.user) {
+        return;
+      }
+      let params = {
+        userName: to.params.user,
+        password: to.params.pwd
+      };
+      Login.login(params)
+        .then(res => {
+          if (res.data.code == 600) {
+            let regId = res.data.data.id;
+            localStorage.setItem("regId", regId); // 注册公司id
+            localStorage.setItem("userName", params.userName); //用户
+          } else {
+            vm.$router.push("/");
+          }
+        })
+        .catch(err => {
+          alert("出错了！！！！" + err);
+        });
+    });
   },
   created() {
     let account = localStorage.getItem("userName");

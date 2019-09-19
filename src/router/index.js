@@ -15,6 +15,11 @@ const router = new Router({
 			name: 'Main',
 			component: Main,
 		},
+		{
+			path: '/Main/:user/:pwd',
+			name: 'Main',
+			component: Main,
+		},
 	]
 })
 export default router;
