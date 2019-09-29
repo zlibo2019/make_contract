@@ -1,8 +1,42 @@
 <template>
   <div>
     <div>
-      <el-dialog title="提示" :visible.sync="dialogShowPhotoVisible" width="30%" top="10px">
-        <el-image v-for="url in urls" :key="url" :src="url" fit="fill"></el-image>
+      <el-dialog title="图片展示" :visible.sync="dialogShowPhotoVisible" width="30%" top="10px">
+        <!-- <span class="delete" @click="showFiguredelete(index)">×</span> -->
+        <!-- <el-image v-for="url in urls" :key="url" :src="url" fit="fill"></!-->
+
+        <el-table :data="tableDataImage" border style="width: 100%">
+          <el-table-column type="selection" width="30"></el-table-column>
+          <el-table-column prop="image" label="图片" width="300">
+            <template slot-scope="scope">
+              <el-popover
+                placement="right"
+                title
+                trigger="hover"
+                style="width: 100px; height: 100px"
+              >
+                <img :src="scope.row.image" />
+                <img
+                  slot="reference"
+                  :src="scope.row.image"
+                  :alt="scope.row.image"
+                  style="max-height: 100px;max-width: 100px"
+                />
+              </el-popover>
+              <!-- <el-image style="width: 100px; height: 100px" :src="scope.row.image"></el-image> -->
+            </template>
+          </el-table-column>
+          <el-table-column prop="operate" label="操作">
+            <template slot-scope="scope">
+              <el-button
+                @click="deletePhotoClick(scope.$index,scope.row)"
+                type="text"
+                size="small"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogShowPhotoVisible = false">取 消</el-button>
           <el-button type="primary" @click="dialogShowPhotoVisible = false">确 定</el-button>
@@ -67,7 +101,7 @@
             <i class="el-icon-setting"></i>
           </template>
           <el-menu-item-group>
-            <span slot="title">个性化设置</span>
+            <!-- <span slot="title">个性化设置</span> -->
 
             <el-submenu index="1-1">
               <span slot="title">合同列表导入模板</span>
@@ -82,14 +116,14 @@
             </el-submenu>
           </el-menu-item-group>
         </el-submenu>
-        <el-menu-item index="2">
+        <!-- <el-menu-item index="2">
           <i class="el-icon-menu"></i>
           <span slot="title">功能</span>
         </el-menu-item>
         <el-menu-item index="3" disabled>
           <i class="el-icon-document"></i>
           <span slot="title">筛选</span>
-        </el-menu-item>
+        </el-menu-item>-->
       </el-menu>
     </div>
 
@@ -98,12 +132,9 @@
         <el-header style="text-align: left; font-size: 12px; height:20px; margin-top:10px">
           <div>
             <span>管理员</span>
-            <el-input
-              v-model="inputAccount"
-              style="width:100px;height:70px"
-              :disabled="true"
-              size="mini"
-            ></el-input>
+            <el-input v-model="inputAccount" style="width:150px;" :disabled="true" size="mini"></el-input>
+            <span>项目名称</span>
+            <el-input v-model="inputProjectName" style="width:150px" :disabled="true" size="mini"></el-input>
             <el-button
               @click="exitClick"
               slot="trigger"
@@ -119,7 +150,7 @@
           <div>
             <el-input
               v-model="inputCondition"
-              style="width:380px;height:31px;padding-top: 19px;"
+              style="width:410px;height:31px;padding-top: 19px;"
               size="mini"
             ></el-input>
             <el-button
@@ -301,6 +332,12 @@ export default {
   name: "Main",
   data() {
     return {
+      tableDataImage: [
+        {
+          image:
+            "https://gss1.bdstatic.com/-vo3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike92%2C5%2C5%2C92%2C30/sign=1a3d82d42f2dd42a4b0409f9625230d0/314e251f95cad1c86a912b9a753e6709c93d5161.jpg"
+        }
+      ],
       dialogType: 1, // 1身份证2合同照片
       uploadContractListTemplateData: { aa: "11" },
       urls: [],
@@ -308,6 +345,7 @@ export default {
       dialogUploadContractListTemplateVisible: false,
       dialogUploadContractTemplateVisible: false,
       inputAccount: "",
+      inputProjectName: "",
       inputCondition: "",
       upTemplate: { name: "赵李波" },
       radio: 1,
@@ -322,11 +360,23 @@ export default {
       tableData: [],
       fileList: [],
       uploadData: {
-        regId: "1"
+        projectBh: localStorage.getItem("projectBh")
       }
     };
   },
   methods: {
+    deletePhotoClick(index, row) {
+      let self = this;
+      let params = { filePath: row.image };
+      this.removeFile(params).then(res => {
+        if (res.data.code == 600) {
+          this.tableDataImage.splice(index, 1);
+          alert("删除成功");
+        } else {
+          alert("删除失败:" + res.data.msg);
+        }
+      });
+    },
     handleSelect(key, keyPath) {
       if (key === "1-1-1") {
         this.downContractListTemplateClick();
@@ -419,44 +469,68 @@ export default {
     },
     showSfzClick(row) {
       let userId = row.userId;
-      this.urls.length = 0;
+      // this.urls.length = 0;
+      this.tableDataImage.length = 0;
       this.showPhoto(userId, null, 1);
     },
     showContractClick(row) {
       let userId = row.userId;
-      let regId = row.regId;
-      this.urls.length = 0;
-      this.showPhoto(userId, regId, 2);
+      let projectBh = localStorage.getItem("projectBh");
+      // this.urls.length = 0;
+      this.tableDataImage.length = 0;
+      this.showPhoto(userId, projectBh, 2);
     },
-    listContractFileName(regId, userId) {
-      let params = { regId: regId, userId: userId };
+    listContractFileName(projectBh, userId) {
+      let params = { projectBh: projectBh, userId: userId };
       return commonAxios(
         "post",
         `${Base.server}/contract/listContractFileName`,
         params
       );
     },
-    showPhoto(userId, regId, type) {
+    listSfzFileName(userId) {
+      let params = { userId: userId };
+      return commonAxios(
+        "post",
+        `${Base.server}/contract/listSfzFileName`,
+        params
+      );
+    },
+    showPhoto(userId, projectBh, type) {
       let self = this;
       // let regId = tableData[0].regId;
       // let userId = this.checkBoxData[0].userId;
       if (type === 1) {
         let url1 = `${Base.server}/public/photo/${userId}/sfz1.jpg`;
         let url2 = `${Base.server}/public/photo/${userId}/sfz2.jpg`;
-        this.urls.push(url1);
-        this.urls.push(url2);
+        // this.urls.push(url1);
+        // this.urls.push(url2);
+        // this.tableDataImage.push({ image: url1 });
+        // this.tableDataImage.push({ image: url2 });
         this.dialogType = 1;
+        this.listSfzFileName(userId).then(res => {
+          if (res.data.code === 600) {
+            let arrName = res.data.data;
+            for (let i = 0; i < arrName.length; i++) {
+              let curUrl = `${Base.server}/public/photo/${userId}/${arrName[i]}`;
+              // self.urls.push(curUrl);
+              self.tableDataImage.push({ image: curUrl });
+            }
+            this.dialogShowPhotoVisible = true;
+          }
+        });
         this.dialogShowPhotoVisible = true;
       } else {
         // let userId = this.checkBoxData[0].userId;
         // let regId = this.checkBoxData[0].regId;
         this.dialogType = 2;
-        this.listContractFileName(regId, userId).then(res => {
+        this.listContractFileName(projectBh, userId).then(res => {
           if (res.data.code === 600) {
             let arrName = res.data.data;
             for (let i = 0; i < arrName.length; i++) {
               let curUrl = `${Base.server}/public/photo/${userId}/${arrName[i]}`;
-              self.urls.push(curUrl);
+              // self.urls.push(curUrl);
+              self.tableDataImage.push({ image: curUrl });
             }
             this.dialogShowPhotoVisible = true;
           }
@@ -511,52 +585,52 @@ export default {
         };
       });
     },
-    httpRequestUpContractTemplate(options) {
-      // alert("aaaaaaaaaaaaaaaaa");
-      let self = this;
-      // this.fileName = options.file.name;
-      // this.id = options.data.id;
-      let regId = localStorage.getItem("regId"); // 注册公司id
-      this.getBase64(options.file).then(res => {
-        let fileData = res.split(",")[1];
-        let params = { regId: regId };
-        self
-          .saveContractTemplate(params)
-          .then(res => {
-            this.$message({
-              type: "success",
-              message: "上传成功!"
-            });
-            // this.templetManage();
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      });
-    },
-    httpRequestUpContractListTemplate(options) {
-      // alert("aaaaaaaaaaaaaaaaa");
-      let self = this;
-      // this.fileName = options.file.name;
-      // this.id = options.data.id;
-      let regId = localStorage.getItem("regId"); // 注册公司id
-      this.getBase64(options.file).then(res => {
-        let fileData = res.split(",")[1];
-        let params = { regId: regId, base64_1: fileData };
-        self
-          .saveContractListTemplate(params)
-          .then(res => {
-            this.$message({
-              type: "success",
-              message: "上传成功!"
-            });
-            // this.templetManage();
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      });
-    },
+    // httpRequestUpContractTemplate(options) {
+    //   // alert("aaaaaaaaaaaaaaaaa");
+    //   let self = this;
+    //   // this.fileName = options.file.name;
+    //   // this.id = options.data.id;
+    //   let projectBh = localStorage.getItem("projectBh"); // 注册公司id
+    //   this.getBase64(options.file).then(res => {
+    //     let fileData = res.split(",")[1];
+    //     let params = { projectBh: projectBh };
+    //     self
+    //       .saveContractTemplate(params)
+    //       .then(res => {
+    //         this.$message({
+    //           type: "success",
+    //           message: "上传成功!"
+    //         });
+    //         // this.templetManage();
+    //       })
+    //       .catch(error => {
+    //         console.log(error);
+    //       });
+    //   });
+    // },
+    // httpRequestUpContractListTemplate(options) {
+    //   // alert("aaaaaaaaaaaaaaaaa");
+    //   let self = this;
+    //   // this.fileName = options.file.name;
+    //   // this.id = options.data.id;
+    //   let projectBh = localStorage.getItem("projectBh"); // 注册公司id
+    //   this.getBase64(options.file).then(res => {
+    //     let fileData = res.split(",")[1];
+    //     let params = { projectBh: projectBh, base64_1: fileData };
+    //     self
+    //       .saveContractListTemplate(params)
+    //       .then(res => {
+    //         this.$message({
+    //           type: "success",
+    //           message: "上传成功!"
+    //         });
+    //         // this.templetManage();
+    //       })
+    //       .catch(error => {
+    //         console.log(error);
+    //       });
+    //   });
+    // },
 
     httpRequestUpContractList(options) {
       // alert('bbbbbbbbbbbbbbbbbbb');
@@ -661,8 +735,8 @@ export default {
 
     downContractListTemplateClick() {
       let self = this;
-      let regId = localStorage.getItem("regId");
-      let url = `${Base.server}/public/docx/template/${regId}/template_contract_list.xlsx`;
+      let projectBh = localStorage.getItem("projectBh");
+      let url = `${Base.server}/public/docx/template/${projectBh}/template_contract_list.xlsx`;
       this.downFile(url)
         .then(res => {
           let blob = new Blob([res.data], {
@@ -675,20 +749,20 @@ export default {
         })
         .catch(error => {
           let url = `${Base.server}/public/docx/template/template_contract_list.xlsx`;
-          self.downloadFile(url, fileName);
+          self.downloadFile(url, "");
         });
     },
 
     downContractTemplateClick() {
       let self = this;
-      let regId = localStorage.getItem("regId");
+      let projectBh = localStorage.getItem("projectBh");
       // let fileName = "template_contract.docx";
       // let params = {
       //   regId: regId,
       //   fileName: fileName,
       //   server: Base.server
       // };
-      let url = `${Base.server}/public/docx/template/${regId}/template_contract.docx`;
+      let url = `${Base.server}/public/docx/template/${projectBh}/template_contract.docx`;
       this.downFile(url)
         .then(res => {
           let blob = new Blob([res.data], {
@@ -746,6 +820,13 @@ export default {
     bulkMakeContract(params) {
       return commonAxios("post", `${Base.server}/bulkMakeContract`, params);
     },
+    bulkMakeContractPhoto(params) {
+      return commonAxios(
+        "post",
+        `${Base.server}/bulkMakeContractPhoto`,
+        params
+      );
+    },
     saveContractList(params) {
       return commonAxios("post", `${Base.server}/saveContractList`, params);
     },
@@ -757,6 +838,9 @@ export default {
     },
     saveContractTemplate(params) {
       return commonAxios("post", `${Base.server}/saveContractTemplate`, params);
+    },
+    removeFile(params) {
+      return commonAxios("post", `${Base.server}/removeFile`, params);
     },
 
     saveContractListTemplate(params) {
@@ -824,8 +908,8 @@ export default {
             arrContractList.push(ContractList);
           }
 
-          let regId = localStorage.getItem("regId");
-          let params = { regId: regId, arrData: arrContractList };
+          let projectBh = localStorage.getItem("projectBh");
+          let params = { regprojectBhId: projectBh, arrData: arrContractList };
           _this.saveContractList(params).then(res => {
             console.log(JSON.stringify(res));
             if (res.data.code == 600) {
@@ -847,9 +931,9 @@ export default {
 
     queryContractListClick() {
       let self = this;
-      let regId = localStorage.getItem("regId");
+      let projectBh = localStorage.getItem("projectBh");
       let fuzzyCondition = this.inputCondition; // 模糊查询
-      let params = { regId: regId, fuzzyCondition: fuzzyCondition };
+      let params = { projectBh: projectBh, fuzzyCondition: fuzzyCondition };
       this.queryContractList(params).then(res => {
         console.log(JSON.stringify(res));
         if (res.data.code == 600) {
@@ -889,7 +973,7 @@ export default {
         }
       }
       let params = {
-        regId:0,// this.checkBoxData[0].regId,
+        projectBh: localStorage.getItem("projectBh"),
         userId: this.checkBoxData[0].userId,
         contractNo: this.checkBoxData[0].contractNo,
         base64_1: base64_1,
@@ -899,7 +983,7 @@ export default {
       // alert(this.checkBoxData[0].ContractListId);
       console.log(JSON.stringify(this.tableData));
 
-// alert(JSON.stringify(params));
+      // alert(JSON.stringify(params));
 
       this.savePhoto(params).then(res => {
         // console.log(JSON.stringify(res));
@@ -921,6 +1005,23 @@ export default {
         return;
       }
       self.bulkMakeContract(self.checkBoxData).then(res => {
+        if (res.data.code == 600) {
+          let filePath = res.data.data;
+          self.downloadFile(filePath, "");
+        } else {
+          alert("照片不存在!");
+        }
+      });
+      // }
+    },
+
+    bulkGetContractPhotoClick() {
+      let self = this;
+      if (self.checkBoxData.length === 0) {
+        alert("请至少选择一行!");
+        return;
+      }
+      self.bulkMakeContractPhoto(self.checkBoxData).then(res => {
         if (res.data.code == 600) {
           let filePath = res.data.data;
           self.downloadFile(filePath, "");
@@ -1133,19 +1234,23 @@ export default {
   beforeRouteEnter(to, from, next) {
     let self = this;
     next(vm => {
-      if (undefined === to.params.user || null === to.params.user) {
+      if (undefined === to.params.glyNo || null === to.params.glyPass) {
         return;
       }
       let params = {
-        userName: to.params.user,
-        password: to.params.pwd
+        glyNo: to.params.glyNo,
+        glyPass: to.params.glyPass
       };
       Login.login(params)
         .then(res => {
           if (res.data.code == 600) {
-            let regId = res.data.data.id;
-            localStorage.setItem("regId", regId); // 注册公司id
-            localStorage.setItem("userName", params.userName); //用户
+            let projectBh = res.data.data.projectBh;
+            let projectName = res.data.data.projectName;
+            let glyName = res.data.data.glyName;
+            localStorage.setItem("projectBh", projectBh); //
+            localStorage.setItem("projectName", projectName); //
+            localStorage.setItem("glyName", glyName); //
+            vm.$router.push("/Main");
           } else {
             vm.$router.push("/");
           }
@@ -1155,13 +1260,35 @@ export default {
         });
     });
   },
+
   created() {
-    let account = localStorage.getItem("userName");
-    if (undefined === account || null === account) {
+    // let params = this.$route.params;
+    // if (undefined !== params.glyNo) {
+    //   Login.login(params)
+    //     .then(res => {
+    //       if (res.data.code == 600) {
+    //         let projectBh = res.data.data.projectBh;
+    //         let projectName = res.data.data.projectName;
+    //         let glyName = res.data.data.glyName;
+    //         localStorage.setItem("projectBh", projectBh); //
+    //         localStorage.setItem("projectName", projectName); //
+    //         localStorage.setItem("glyName", glyName); //
+    //       } else {
+    //         vm.$router.push("/");
+    //       }
+    //     })
+    //     .catch(err => {
+    //       alert("出错了！！！！" + err);
+    //     });
+    // }
+
+    let glyName = localStorage.getItem("glyName");
+    if (undefined === glyName || null === glyName) {
       this.$router.push("/");
     }
 
-    this.inputAccount = localStorage.getItem("regId");
+    this.inputAccount = glyName;
+    this.inputProjectName = localStorage.getItem("projectName");
   },
   mounted() {
     let arrObj = document.getElementsByTagName("OBJECT");
@@ -1183,6 +1310,7 @@ export default {
   }
 };
 </script>
+  
 
 <style type="text/scss" lang="scss" scoped>
 .input-file {
@@ -1300,6 +1428,17 @@ export default {
   // margin-top: 10px;
   margin-left: 3px;
 }
+
+// .delete {
+//   width: 20px;
+//   height: 20px;
+//   position: absolute;
+//   top: -30px;
+//   font-size: 18px;
+//   color: red;
+//   right: -10px;
+//   cursor: pointer;
+// }
 </style>
 
 

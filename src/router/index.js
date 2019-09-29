@@ -16,7 +16,7 @@ const router = new Router({
 			component: Main,
 		},
 		{
-			path: '/Main/:user/:pwd',
+			path: '/Main/:glyNo/:glyPass',
 			name: 'Main',
 			component: Main,
 		},
